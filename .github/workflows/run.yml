@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - main
+    watch:
+      types: started
     schedule:
       - cron: 0 10 * * *
 jobs:
