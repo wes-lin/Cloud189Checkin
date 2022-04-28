@@ -6,6 +6,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    environment: user
     steps:
     - uses: actions/checkout@v3
     - name: Setup Node.js environment
