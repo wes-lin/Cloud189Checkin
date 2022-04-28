@@ -13,7 +13,7 @@ jobs:
       with:
         node-version: 14
       env:
-        189_USER_NAME: ${{secrets.189_USER_NAME}}
-        189_PASSWORD: ${{secrets.189_PASSWORD}}
+        189_USER_NAME: ${{secrets.TY_USER_NAME}}
+        189_PASSWORD: ${{secrets.TY_PASSWORD}}
       run: npm install
       run: npm start
