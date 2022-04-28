@@ -8,11 +8,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v3
       with:
         node-version: 14
-    - env:
+      env:
         189_USER_NAME: ${{secrets.189_USER_NAME}}
         189_PASSWORD: ${{secrets.189_PASSWORD}}
-    - run: npm install
-    - run: npm start
+      run: npm install
+      run: npm start
