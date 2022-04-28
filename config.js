@@ -1,7 +1,7 @@
 
 module.exports = {
-    userName:process.env['189_USER_NAME']||'userName',
-    password:process.env['189_PASSWORD']||'password',
+    userName:process.env['TY_USER_NAME']||'userName',
+    password:process.env['TY_PASSWORD']||'password',
     clientId:'538135150693412',
     model:'KB2000',
     version:'9.0.6',

@@ -12,8 +12,11 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: 14
-      env:
-        189_USER_NAME: ${{secrets.TY_USER_NAME}}
-        189_PASSWORD: ${{secrets.TY_PASSWORD}}
+
+    - name: init
       run: npm install
+    - name: run
+      env:
+        TY_USER_NAME: ${{secrets.TY_USER_NAME}}
+        TY_PASSWORD: ${{secrets.TY_PASSWORD}}
       run: npm start
