@@ -48,6 +48,7 @@ module.exports = {
 }
 ```
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/local.png)
+
 执行命令
 ``` bash
 npm start
