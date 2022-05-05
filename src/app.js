@@ -158,6 +158,7 @@ const doTask = async ()=>{
     for (let index = 0; index < tasks.length; index++) {
         const task = tasks[index];
         var res = await doGet(task)
+        console.log(res)
         if(index == 0){
             //签到
             if(res.isSign){
