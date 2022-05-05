@@ -158,10 +158,9 @@ const doTask = async ()=>{
     for (let index = 0; index < tasks.length; index++) {
         const task = tasks[index];
         var res = await doGet(task)
-        console.log(res)
         if(index == 0){
             //签到
-            result.push((res.isSign?'已经签到过了':'')+`签到获得${res.netdiskBonus}M空间`)
+            result.push((res.isSign?'已经签到过了，':'')+`签到获得${res.netdiskBonus}M空间`)
         }else{
             if(res.errorCode === 'User_Not_Chance'){
                 result.push(`第${index}次抽奖失败,次数不足`)
