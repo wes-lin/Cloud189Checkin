@@ -161,16 +161,12 @@ const doTask = async ()=>{
         console.log(res)
         if(index == 0){
             //签到
-            if(res.isSign){
-                result.push(`签到获得${res.netdiskBonus}M空间`)
-            }else{
-                result.push('签到失败')
-            }
+            result.push((res.isSign?'已经签到过了':'')+`签到获得${res.netdiskBonus}M空间`)
         }else{
             if(res.errorCode === 'User_Not_Chance'){
                 result.push(`第${index}次抽奖失败,次数不足`)
             }else{
-                result.push(`第${index}次抽奖成功,抽奖获得${res.description}`)
+                result.push(`第${index}次抽奖成功,抽奖获得${res.prizeName}`)
             }
         }
     }
