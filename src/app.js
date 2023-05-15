@@ -1,5 +1,4 @@
-var url = require('url');
-const xpath = require("xpath-html");
+const url = require('url');
 const JSEncrypt = require('node-jsencrypt')
 // process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
 const superagent = require('superagent');
@@ -33,52 +32,75 @@ const getEncrypt = () => new Promise((resolve, reject)=>{
     })
 })
 
-const getLoginFormData = (username,password,encryptKey) => new Promise((resolve, reject)=>{
+const getAppConf = () => new Promise((resolve, reject)=>{
     superagent.get('https://cloud.189.cn/api/portal/loginUrl.action?redirectURL=https://cloud.189.cn/web/redirect.html?returnURL=/main.action')
     .end((err,res)=>{
         if(err){
             reject(err)
             return
         }
-        var body = res.text;
-        var script = xpath.fromPageSource(body).findElement("//script[contains(text(), '扫码登录客户端配置')]")
-        var context = script.getText();
-        var rsaKey = xpath.fromPageSource(body).findElement("//input[@id='j_rsaKey']")
-        var captchaToken = xpath.fromPageSource(body).findElement("//input[@name='captchaToken']")
-        var keyData = `-----BEGIN PUBLIC KEY-----\n${encryptKey}\n-----END PUBLIC KEY-----`;
-        var jsencrypt = new JSEncrypt()
-        jsencrypt.setPublicKey(keyData)
-        var usernameEncrypt = Buffer.from(jsencrypt.encrypt(username),'base64').toString('hex')
-        var passwordEncrypt = Buffer.from(jsencrypt.encrypt(password),'base64').toString('hex')
-        var formData = {
-            returnUrl:context.match(getParReg('returnUrl'))[0],
-            paramId:context.match(getParReg('paramId','"'))[0],
-            captchaToken:captchaToken.getAttribute('value'),
-            lt:context.match(getParReg('lt','"'))[0],
-            rsaKey:rsaKey.getAttribute('value'),
-            REQID:context.match(getParReg('reqId','"'))[0],
-            userName:`{NRP}${usernameEncrypt}`,
-            password:`{NRP}${passwordEncrypt}`
-        }
-        resolve(formData)
-    })
+        var query = url.parse(res.redirects[1],true).query;
+        resolve(query)
+    });
 })
 
-const getParReg = (name,s = '\'')=>{
-    return `(?<=${name} = \\${s})(.+?)(?=\\${s})`
-}
+const getLoginFormData = (username,password,encryptKey) => new Promise((resolve, reject)=>{
+    getAppConf().then(query=>{
+        superagent.post('https://open.e.189.cn/api/logbox/oauth2/appConf.do')
+        .set({
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/76.0",
+            "Referer": "https://open.e.189.cn/",
+            "lt":query.lt,
+            "REQID":query.reqId
+        })
+        .type('form')
+        .send({
+            version:'2.0',
+            appKey:'cloud'
+        })
+        .end((err,res)=>{
+            if(err){
+                reject(err)
+                return
+            }
+            var resData = JSON.parse(res.text)
+            if(resData.result==0){
+            var keyData = `-----BEGIN PUBLIC KEY-----\n${encryptKey}\n-----END PUBLIC KEY-----`;
+            var jsencrypt = new JSEncrypt()
+            jsencrypt.setPublicKey(keyData)
+            var usernameEncrypt = Buffer.from(jsencrypt.encrypt(username),'base64').toString('hex')
+            var passwordEncrypt = Buffer.from(jsencrypt.encrypt(password),'base64').toString('hex')
+            var formData = {
+                returnUrl:resData.data.returnUrl,
+                paramId:resData.data.paramId,
+                lt:query.lt,
+                REQID:query.reqId,
+                userName:`{NRP}${usernameEncrypt}`,
+                password:`{NRP}${passwordEncrypt}`
+            }
+            resolve(formData)
+            }else{
+                reject('无法获取登录参数');
+            }
+        });
+    }).catch(err=>{
+        reject(err)
+    })
+})
 
 const login = (formData) => new Promise((resolve, reject)=>{
     var data = {
         appKey:"cloud",
+        version:"2.0",
         accountType: "01",
         mailSuffix: "@189.cn",
         validateCode: "",
         returnUrl:formData.returnUrl,
         paramId:formData.paramId,
-        captchaToken:formData.captchaToken,
+        captchaToken:"",
         dynamicCheck:'FALSE',
         clientType:'1',
+        cb_SaveName:'0',
         isOauth2:false,
         userName:formData.userName,
         password:formData.password
