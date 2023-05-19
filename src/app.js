@@ -3,6 +3,7 @@ const JSEncrypt = require('node-jsencrypt');
 // process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
 const superagent = require('superagent');
 const config = require('../config');
+const accounts = require('../accounts');
 
 const client = superagent.agent();
 const headers = {
@@ -154,11 +155,10 @@ const doGet = (taskUrl) => new Promise((resolve, reject) => {
     });
 });
 
+const mask = (s, start, end) => s.split('').fill('*', start, end).join('');
+
 // 登录流程 1.获取公钥 -> 2.获取登录参数 -> 3.获取登录地址,跳转到登录页
-const doLogin = async () => {
-  const mask = (s, start, end) => s.split('').fill('*', start, end).join('');
-  const { userName, password } = config;
-  console.log(`开始登录账号:${mask(userName, 3, 7)}`);
+const doLogin = async (userName, password) => {
   const encryptKey = await getEncrypt();
   const formData = await getLoginFormData(userName, password, encryptKey);
   const loginResult = await login(formData);
@@ -191,14 +191,20 @@ const doTask = async () => {
 };
 
 // 开始执行程序
-doLogin().then(() => {
-  console.log('--登录成功开始执行任务--');
-  doTask().then((result) => {
-    console.log('任务执行完毕');
-    result.forEach((r) => console.log(r));
-  }).catch((e) => {
-    console.error(`任务执行失败:${JSON.stringify(e)}`);
-  });
-}).catch((e) => {
-  console.error(`登录失败:${JSON.stringify(e)}`);
+accounts.forEach(async (account) => {
+  const { userName, password } = account;
+  if (userName && password) {
+    const userNameInfo = mask(userName, 3, 7);
+    await doLogin(userName, password).then(() => {
+      console.log(`--${userNameInfo} 登录成功开始执行任务--`);
+      doTask().then((result) => {
+        result.forEach((r) => console.log(r));
+        console.log(`--${userNameInfo}任务执行完毕--`);
+      }).catch((e) => {
+        console.error(`--${userNameInfo}任务执行失败:${JSON.stringify(e)}--`);
+      });
+    }).catch((e) => {
+      console.error(`--${userNameInfo} 登录失败:${JSON.stringify(e)}--`);
+    });
+  }
 });
