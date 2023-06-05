@@ -11,7 +11,7 @@
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/account.jpg)
 ### 设置推送
 为了考虑到不同客户端兼容性,采用了Server酱,只需多配置下SENKEY
-[](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/push.png)就行,Server酱的配置和senkey的获取可参看[Server酱官网](https://sct.ftqq.com/)
+![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/push.png)就行,Server酱的配置和senkey的获取可参看[Server酱官网](https://sct.ftqq.com/)
 ### 执行任务
 1. 点击**Action**，再点击**I understand my workflows, go ahead and enable them**  
 2. 给自己仓库点个start或者修改任意文件后提交一次  

@@ -211,7 +211,7 @@ const doTask = async () => {
 };
 
 const pushServerChan = (title, desp) => {
-  if (serverChan.sendKey) { return; }
+  if (!serverChan.sendKey) { return; }
   const data = {
     title,
     desp,
