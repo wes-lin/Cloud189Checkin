@@ -1,9 +1,30 @@
 const url = require('url');
+const log4js = require('log4js');
+const recording = require('log4js/lib/appenders/recording');
+
+log4js.configure({
+  appenders: {
+    vcr: {
+      type: 'recording',
+    },
+    out: {
+      type: 'console',
+      layout: {
+        type: 'pattern',
+        pattern: '%d %p %c %X{user} %m%n',
+      },
+    },
+  },
+  categories: { default: { appenders: ['vcr', 'out'], level: 'info' } },
+});
+
+const logger = log4js.getLogger();
 const JSEncrypt = require('node-jsencrypt');
 // process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
 const superagent = require('superagent');
 const config = require('../config');
 const accounts = require('../accounts');
+const serverChan = require('../serverChan');
 
 const client = superagent.agent();
 const headers = {
@@ -147,7 +168,6 @@ const doGet = (taskUrl) => new Promise((resolve, reject) => {
     })
     .end((err, res) => {
       if (err) {
-        console.error(err);
         reject(err);
         return;
       }
@@ -190,21 +210,58 @@ const doTask = async () => {
   return result;
 };
 
-// 开始执行程序
-accounts.forEach(async (account) => {
-  const { userName, password } = account;
-  if (userName && password) {
-    const userNameInfo = mask(userName, 3, 7);
-    await doLogin(userName, password).then(() => {
-      console.log(`--${userNameInfo} 登录成功开始执行任务--`);
-      doTask().then((result) => {
-        result.forEach((r) => console.log(r));
-        console.log(`--${userNameInfo}任务执行完毕--`);
-      }).catch((e) => {
-        console.error(`--${userNameInfo}任务执行失败:${JSON.stringify(e)}--`);
-      });
-    }).catch((e) => {
-      console.error(`--${userNameInfo} 登录失败:${JSON.stringify(e)}--`);
+const pushServerChan = (title, desp) => {
+  if (serverChan.sendKey) { return; }
+  const data = {
+    title,
+    desp,
+  };
+  superagent.post(`https://sctapi.ftqq.com/${serverChan.sendKey}.send`)
+    .type('form')
+    .send(data)
+    .end((err, res) => {
+      if (err) {
+        logger.error(`推送失败:${JSON.stringify(err)}`);
+        return;
+      }
+      const json = JSON.parse(res.text);
+      if (json.code !== 0) {
+        logger.error(`推送失败:${JSON.stringify(json)}`);
+      } else {
+        logger.info('推送成功');
+      }
     });
+};
+
+// 开始执行程序
+async function main() {
+  for (let index = 0; index < accounts.length; index += 1) {
+    const account = accounts[index];
+    const { userName, password } = account;
+    if (userName && password) {
+      const userNameInfo = mask(userName, 3, 7);
+      logger.addContext('user', userNameInfo);
+      // eslint-disable-next-line no-await-in-loop
+      await doLogin(userName, password).then(() => {
+        logger.log('登录成功开始执行任务');
+        return doTask().then((result) => {
+          result.forEach((r) => logger.log(r));
+          logger.log('任务执行完毕');
+        }).catch((e) => {
+          logger.error(`任务执行失败:${JSON.stringify(e)}`);
+        });
+      }).catch((e) => {
+        logger.error(`登录失败:${JSON.stringify(e)}`);
+      }).finally(() => {
+        logger.removeContext('user');
+      });
+    }
   }
+}
+
+main().finally(() => {
+  const events = recording.replay();
+  const content = events.map((e) => `${e.context.user} ${e.data.join('')}`).join('  \n');
+  pushServerChan('天翼云盘自动签到任务', content);
+  recording.erase();
 });

@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "log4js": "^6.9.1",
     "node-jsencrypt": "^1.0.0",
     "superagent": "^7.1.3"
   },

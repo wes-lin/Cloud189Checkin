@@ -32,4 +32,5 @@ jobs:
         TY_PASSWORD3: ${{secrets.TY_PASSWORD3}}
         TY_USER_NAME4: ${{secrets.TY_USER_NAME4}}
         TY_PASSWORD4: ${{secrets.TY_PASSWORD4}}
+        SENDKEY: ${{secrets.SENDKEY}}
       run: npm start
