@@ -177,7 +177,7 @@ const doGet = (taskUrl) => new Promise((resolve, reject) => {
 
 const mask = (s, start, end) => s.split('').fill('*', start, end).join('');
 
-class NetTestError extends Error{
+class NetTestError extends Error {
   constructor(message) {
     super(message);
     this.code = 'ECONNRESET';
@@ -266,7 +266,7 @@ async function main() {
         });
       }).catch((e) => {
         logger.error(`登录失败:${JSON.stringify(e)}`);
-        if(e.code === 'ECONNRESET'){
+        if (e.code === 'ECONNRESET') {
           throw new Error('Login Error');
         }
       }).finally(() => {
@@ -276,7 +276,9 @@ async function main() {
   }
 }
 
-main().finally(() => {
+main().catch((e) => {
+  throw new Error(e);
+}).finally(() => {
   const events = recording.replay();
   const content = events.map((e) => `${e.context.user} ${e.data.join('')}`).join('  \n');
   pushServerChan('天翼云盘自动签到任务', content);
