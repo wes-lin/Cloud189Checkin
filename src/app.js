@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 const url = require('url');
 const log4js = require('log4js');
 const recording = require('log4js/lib/appenders/recording');
@@ -210,7 +211,6 @@ const doTask = async () => {
   const result = [];
   for (let index = 0; index < tasks.length; index += 1) {
     const task = tasks[index];
-    // eslint-disable-next-line no-await-in-loop
     const res = await doGet(task);
     if (index === 0) {
       // 签到
@@ -253,31 +253,43 @@ async function main() {
     const account = accounts[index];
     const { userName, password } = account;
     if (userName && password) {
-      const userNameInfo = mask(userName, 3, 7);
-      logger.addContext('user', userNameInfo);
-      // eslint-disable-next-line no-await-in-loop
-      await doLogin(userName, password).then(() => {
-        logger.log('登录成功开始执行任务');
-        return doTask().then((result) => {
-          result.forEach((r) => logger.log(r));
-          logger.log('任务执行完毕');
-        }).catch((e) => {
-          logger.error(`任务执行失败:${JSON.stringify(e)}`);
-        });
-      }).catch((e) => {
+      try {
+        const userNameInfo = mask(userName, 3, 7);
+        logger.addContext('user', userNameInfo);
+        await doLogin(userName, password);
+        const result = await doTask();
+        result.forEach((r) => logger.log(r));
+        logger.log('任务执行完毕');
+      } catch (e) {
         logger.error(`登录失败:${JSON.stringify(e)}`);
         if (e.code === 'ECONNRESET') {
           throw new Error('Login Error');
         }
-      }).finally(() => {
+      } finally {
         logger.removeContext('user');
-      });
+      }
+      // await doLogin(userName, password).then(() => {
+      //   logger.log('登录成功开始执行任务');
+      //   return doTask().then((result) => {
+      //     result.forEach((r) => logger.log(r));
+      //     logger.log('任务执行完毕');
+      //   }).catch((e) => {
+      //     logger.error(`任务执行失败:${JSON.stringify(e)}`);
+      //   });
+      // }).catch((e) => {
+      //   logger.error(`登录失败:${JSON.stringify(e)}`);
+      //   if (e.code === 'ECONNRESET') {
+      //     throw new Error('Login Error');
+      //   }
+      // }).finally(() => {
+      //   logger.removeContext('user');
+      // });
     }
   }
 }
 
 main().catch((e) => {
-  throw new Error(e);
+  throw e;
 }).finally(() => {
   const events = recording.replay();
   const content = events.map((e) => `${e.context.user} ${e.data.join('')}`).join('  \n');
