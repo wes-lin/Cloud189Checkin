@@ -178,12 +178,16 @@ const doGet = (taskUrl) => new Promise((resolve, reject) => {
 const mask = (s, start, end) => s.split('').fill('*', start, end).join('');
 
 // 登录流程 1.获取公钥 -> 2.获取登录参数 -> 3.获取登录地址,跳转到登录页
-const doLogin = async (userName, password) => {
-  const encryptKey = await getEncrypt();
-  const formData = await getLoginFormData(userName, password, encryptKey);
-  const loginResult = await login(formData);
-  return [encryptKey, formData, loginResult];
-};
+const doLogin = (userName, password) => new Promise((resolve, reject) => {
+  getEncrypt()
+    .then((encryptKey) => getLoginFormData(userName, password, encryptKey))
+    .then((formData) => login(formData))
+    .then(() => resolve('登录成功'))
+    .catch((error) => {
+      console.error(error);
+      reject(error);
+    });
+});
 
 // 任务 1.签到 2.天天抽红包 3.自动备份抽红包
 const doTask = async () => {
@@ -191,6 +195,7 @@ const doTask = async () => {
     `https://cloud.189.cn/mkt/userSign.action?rand=${new Date().getTime()}&clientType=TELEANDROID&version=${config.version}&model=${config.model}`,
     'https://m.cloud.189.cn/v2/drawPrizeMarketDetails.action?taskId=TASK_SIGNIN&activityId=ACT_SIGNIN',
     'https://m.cloud.189.cn/v2/drawPrizeMarketDetails.action?taskId=TASK_SIGNIN_PHOTOS&activityId=ACT_SIGNIN',
+    'https://m.cloud.189.cn/v2/drawPrizeMarketDetails.action?taskId=TASK_2022_FLDFS_KJ&activityId=ACT_SIGNIN',
   ];
 
   const result = [];
