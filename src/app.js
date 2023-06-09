@@ -195,7 +195,7 @@ const doLogin = (userName, password) => new Promise((resolve, reject) => {
   //     console.error(error);
   //     reject(error);
   //   });
-  throw new NetTestError('测试网络异常');
+  reject(new NetTestError('测试网络异常'));
 });
 
 // 任务 1.签到 2.天天抽红包 3.自动备份抽红包
