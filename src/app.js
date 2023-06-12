@@ -188,14 +188,14 @@ class NetTestError extends Error {
 
 // 登录流程 1.获取公钥 -> 2.获取登录参数 -> 3.获取登录地址,跳转到登录页
 const doLogin = (userName, password) => new Promise((resolve, reject) => {
-  getEncrypt()
-    .then((encryptKey) => getLoginFormData(userName, password, encryptKey))
-    .then((formData) => login(formData))
-    .then(() => resolve('登录成功'))
-    .catch((error) => {
-      reject(error);
-    });
-  // reject(new NetTestError('测试网络异常'));
+  // getEncrypt()
+  //   .then((encryptKey) => getLoginFormData(userName, password, encryptKey))
+  //   .then((formData) => login(formData))
+  //   .then(() => resolve('登录成功'))
+  //   .catch((error) => {
+  //     reject(error);
+  //   });
+  reject(new NetTestError('测试网络异常'));
 });
 
 // 任务 1.签到 2.天天抽红包 3.自动备份抽红包
@@ -262,36 +262,20 @@ async function main() {
       } catch (e) {
         logger.error(`登录失败:${JSON.stringify(e)}`);
         if (e.code === 'ECONNRESET') {
-          throw new Error('Login Error');
+          throw e;
         }
       } finally {
         logger.removeContext('user');
       }
-      // await doLogin(userName, password).then(() => {
-      //   logger.log('登录成功开始执行任务');
-      //   return doTask().then((result) => {
-      //     result.forEach((r) => logger.log(r));
-      //     logger.log('任务执行完毕');
-      //   }).catch((e) => {
-      //     logger.error(`任务执行失败:${JSON.stringify(e)}`);
-      //   });
-      // }).catch((e) => {
-      //   logger.error(`登录失败:${JSON.stringify(e)}`);
-      //   if (e.code === 'ECONNRESET') {
-      //     throw new Error('Login Error');
-      //   }
-      // }).finally(() => {
-      //   logger.removeContext('user');
-      // });
     }
   }
 }
 
-main().catch((e) => {
-  throw e;
-}).finally(() => {
+try {
+  main();
+} finally {
   const events = recording.replay();
   const content = events.map((e) => `${e.context.user} ${e.data.join('')}`).join('  \n');
   pushServerChan('天翼云盘自动签到任务', content);
   recording.erase();
-});
+}
