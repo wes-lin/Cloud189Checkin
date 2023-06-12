@@ -23,6 +23,8 @@ jobs:
       TY_USER_NAME4: ${{secrets.TY_USER_NAME4}}
       TY_PASSWORD4: ${{secrets.TY_PASSWORD4}}
       SENDKEY: ${{secrets.SENDKEY}}
+    outputs:
+      output1: ${{steps.run.outputs.runout}}
     steps:
     - uses: actions/checkout@v3
     - name: Setup Node.js environment
@@ -37,3 +39,7 @@ jobs:
         timeout_minutes: 10
         max_attempts: 3
         command: npm start
+    - name: log
+      env:
+        OUTPUT1: ${{needs.build-and-deploy.outputs.output1}}
+      run: echo "$OUTPUT1"

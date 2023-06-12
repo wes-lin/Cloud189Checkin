@@ -3,6 +3,10 @@ const url = require('url');
 const log4js = require('log4js');
 const recording = require('log4js/lib/appenders/recording');
 
+if (!process.env.GITHUB_OUTPUT) {
+  process.env.GITHUB_OUTPUT = 'cheese.log';
+}
+
 log4js.configure({
   appenders: {
     vcr: {
@@ -10,16 +14,21 @@ log4js.configure({
     },
     out: {
       type: 'console',
+    },
+    cheese: {
+      type: 'file',
+      filename: process.env.GITHUB_OUTPUT,
       layout: {
         type: 'pattern',
-        pattern: '%d %p %c %X{user} %m%n',
+        pattern: '%m%n',
       },
     },
   },
-  categories: { default: { appenders: ['vcr', 'out'], level: 'info' } },
+  categories: { default: { appenders: ['vcr', 'out', 'cheese'], level: 'info' } },
 });
 
 const logger = log4js.getLogger();
+const cheese = log4js.getLogger('cheese');
 const JSEncrypt = require('node-jsencrypt');
 // process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
 const superagent = require('superagent');
@@ -185,6 +194,7 @@ const doLogin = (userName, password) => new Promise((resolve, reject) => {
     .then((formData) => login(formData))
     .then(() => resolve('登录成功'))
     .catch((error) => {
+      logger.error(`登录失败:${JSON.stringify(error)}`);
       reject(error);
     });
 });
@@ -243,20 +253,19 @@ async function main() {
     const account = accounts[index];
     const { userName, password } = account;
     if (userName && password) {
+      const userNameInfo = mask(userName, 3, 7);
       try {
-        const userNameInfo = mask(userName, 3, 7);
-        logger.addContext('user', userNameInfo);
+        logger.log(`账户 ${userNameInfo}开始执行`);
         await doLogin(userName, password);
         const result = await doTask();
         result.forEach((r) => logger.log(r));
         logger.log('任务执行完毕');
       } catch (e) {
-        logger.error(`登录失败:${JSON.stringify(e)}`);
         if (e.code === 'ECONNRESET') {
           throw e;
         }
       } finally {
-        logger.removeContext('user');
+        logger.log(`账户 ${userNameInfo}执行完毕`);
       }
     }
   }
@@ -264,11 +273,14 @@ async function main() {
 
 (async () => {
   try {
+    cheese.log('runout<<----');
     await main();
   } finally {
-    const events = recording.replay();
-    const content = events.map((e) => `${e.context.user} ${e.data.join('')}`).join('  \n');
-    pushServerChan('天翼云盘自动签到任务', content);
+    // const events = recording.replay();
+    // const content = events.map((e) => `${e.context.user} ${e.data.join('')}`).join('  \n');
+    // cheese.log(content);
+    cheese.log('----');
+    // pushServerChan('天翼云盘自动签到任务', content);
     recording.erase();
   }
 })();
