@@ -39,7 +39,7 @@ jobs:
         max_attempts: 3
         command: npm start
     - name: notify
-      if: ${{ secrets.SENDKEY != null }}
+      if: ${{ secrets.SENDKEY }}
       uses: codelessrun/serverchan-action@v1
       with:
         sendKey: ${{secrets.SENDKEY}}
