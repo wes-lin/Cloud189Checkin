@@ -1,30 +1,21 @@
 /* eslint-disable no-await-in-loop */
 const url = require('url');
 const log4js = require('log4js');
-
-if (!process.env.GITHUB_OUTPUT) {
-  process.env.GITHUB_OUTPUT = 'cheese.log';
-}
+const recording = require('log4js/lib/appenders/recording');
 
 log4js.configure({
   appenders: {
+    vcr: {
+      type: 'recording',
+    },
     out: {
       type: 'console',
     },
-    cheese: {
-      type: 'file',
-      filename: process.env.GITHUB_OUTPUT,
-      layout: {
-        type: 'pattern',
-        pattern: '%m%n',
-      },
-    },
   },
-  categories: { default: { appenders: ['out', 'cheese'], level: 'info' } },
+  categories: { default: { appenders: ['vcr', 'out'], level: 'info' } },
 });
 
 const logger = log4js.getLogger();
-const cheese = log4js.getLogger('cheese');
 const JSEncrypt = require('node-jsencrypt');
 // process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
 const superagent = require('superagent');
@@ -220,6 +211,29 @@ const doTask = async () => {
   return result;
 };
 
+const pushServerChan = (title, desp) => {
+  if (!serverChan.sendKey) { return; }
+  const data = {
+    title,
+    desp,
+  };
+  superagent.post(`https://sctapi.ftqq.com/${serverChan.sendKey}.send`)
+    .type('form')
+    .send(data)
+    .end((err, res) => {
+      if (err) {
+        logger.error(`推送失败:${JSON.stringify(err)}`);
+        return;
+      }
+      const json = JSON.parse(res.text);
+      if (json.code !== 0) {
+        logger.error(`推送失败:${JSON.stringify(json)}`);
+      } else {
+        logger.info('推送成功');
+      }
+    });
+};
+
 // 开始执行程序
 async function main() {
   for (let index = 0; index < accounts.length; index += 1) {
@@ -246,9 +260,11 @@ async function main() {
 
 (async () => {
   try {
-    cheese.log('runout<<----');
     await main();
   } finally {
-    cheese.log('----');
+    const events = recording.replay();
+    const content = events.map((e) => `${e.context.user} ${e.data.join('')}`).join('  \n');
+    pushServerChan('天翼云盘自动签到任务', content);
+    recording.erase();
   }
 })();
