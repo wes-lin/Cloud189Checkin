@@ -41,5 +41,5 @@ jobs:
         command: npm start
     - name: log
       env:
-        OUTPUT1: ${{needs.build-and-deploy.outputs.output1}}
-      run: echo "$OUTPUT1"
+        OUTPUT1: ${{outputs.output1}}
+      run: echo "$GITHUB_OUTPUT"
