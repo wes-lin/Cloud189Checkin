@@ -38,4 +38,6 @@ jobs:
         max_attempts: 3
         command: npm start
     - name: log
-      run: echo "${{steps.run.outputs.runout}}"
+      env:
+        OUTPUT1: ${{steps.run.outputs.runout}}
+      run: echo "$OUTPUT1"
