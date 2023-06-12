@@ -14,3 +14,5 @@ tests/**/coverage/
 *.ntvs*
 *.njsproj
 *.sln
+
+cheese.log

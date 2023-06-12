@@ -1,7 +1,6 @@
 /* eslint-disable no-await-in-loop */
 const url = require('url');
 const log4js = require('log4js');
-const recording = require('log4js/lib/appenders/recording');
 
 if (!process.env.GITHUB_OUTPUT) {
   process.env.GITHUB_OUTPUT = 'cheese.log';
@@ -9,9 +8,6 @@ if (!process.env.GITHUB_OUTPUT) {
 
 log4js.configure({
   appenders: {
-    vcr: {
-      type: 'recording',
-    },
     out: {
       type: 'console',
     },
@@ -24,7 +20,7 @@ log4js.configure({
       },
     },
   },
-  categories: { default: { appenders: ['vcr', 'out', 'cheese'], level: 'info' } },
+  categories: { default: { appenders: ['out', 'cheese'], level: 'info' } },
 });
 
 const logger = log4js.getLogger();
@@ -224,29 +220,6 @@ const doTask = async () => {
   return result;
 };
 
-const pushServerChan = (title, desp) => {
-  if (!serverChan.sendKey) { return; }
-  const data = {
-    title,
-    desp,
-  };
-  superagent.post(`https://sctapi.ftqq.com/${serverChan.sendKey}.send`)
-    .type('form')
-    .send(data)
-    .end((err, res) => {
-      if (err) {
-        logger.error(`推送失败:${JSON.stringify(err)}`);
-        return;
-      }
-      const json = JSON.parse(res.text);
-      if (json.code !== 0) {
-        logger.error(`推送失败:${JSON.stringify(json)}`);
-      } else {
-        logger.info('推送成功');
-      }
-    });
-};
-
 // 开始执行程序
 async function main() {
   for (let index = 0; index < accounts.length; index += 1) {
@@ -276,11 +249,6 @@ async function main() {
     cheese.log('runout<<----');
     await main();
   } finally {
-    // const events = recording.replay();
-    // const content = events.map((e) => `${e.context.user} ${e.data.join('')}`).join('  \n');
-    // cheese.log(content);
     cheese.log('----');
-    // pushServerChan('天翼云盘自动签到任务', content);
-    recording.erase();
   }
 })();
