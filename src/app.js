@@ -239,7 +239,7 @@ const pushServerChan = (title, desp) => {
 
 // 开始执行程序
 async function main() {
-  logger.log('::group::Cloud189Checkin');
+  console.log('::group::Cloud189Checkin');
   for (let index = 0; index < accounts.length; index += 1) {
     const account = accounts[index];
     const { userName, password } = account;
@@ -261,7 +261,7 @@ async function main() {
       }
     }
   }
-  logger.log('::endgroup::');
+  console.log('::endgroup::');
 }
 
 (async () => {
