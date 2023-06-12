@@ -38,4 +38,4 @@ jobs:
         max_attempts: 3
         command: npm start
     - name: log
-      run: echo $steps.run.Cloud189Checkin
+      run: echo $steps.run.outputs.Cloud189Checkin
