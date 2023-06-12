@@ -38,10 +38,3 @@ jobs:
         timeout_minutes: 10
         max_attempts: 3
         command: npm start
-    - name: notify
-      if: ${{ secrets.SENDKEY }}
-      uses: codelessrun/serverchan-action@v1
-      with:
-        sendKey: ${{secrets.SENDKEY}}
-        text: "天翼云盘自动签到任务"
-        desp: ${{steps.run.outputs.runout}}
