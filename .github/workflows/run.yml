@@ -38,7 +38,9 @@ jobs:
         timeout_minutes: 10
         max_attempts: 3
         command: npm start
-    - name: log
-      env:
-        OUTPUT1: ${{steps.run.outputs.runout}}
-      run: echo "$OUTPUT1"
+    - name: notify
+      uses: codelessrun/serverchan-action@v1
+      with:
+        sendKey: ${{ secrets.SENDKEY }}
+        text: "天翼云盘自动签到任务"
+        desp: ${{steps.run.outputs.runout}}
