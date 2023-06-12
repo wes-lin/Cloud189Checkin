@@ -271,11 +271,13 @@ async function main() {
   }
 }
 
-try {
-  main();
-} finally {
-  const events = recording.replay();
-  const content = events.map((e) => `${e.context.user} ${e.data.join('')}`).join('  \n');
-  pushServerChan('天翼云盘自动签到任务', content);
-  recording.erase();
-}
+(async () => {
+  try {
+    await main();
+  } finally {
+    const events = recording.replay();
+    const content = events.map((e) => `${e.context.user} ${e.data.join('')}`).join('  \n');
+    pushServerChan('天翼云盘自动签到任务', content);
+    recording.erase();
+  }
+})();
