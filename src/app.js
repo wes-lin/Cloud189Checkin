@@ -239,7 +239,7 @@ const pushTelegramBot = (title, desp) => {
   if (!(telegramBot.botToken && telegramBot.chatId)) { return; }
   const data = {
     chat_id: telegramBot.chatId,
-    text: title + "\n" + desp,
+    text: title + "\n\n" + desp,
   };
   superagent.post(`https://api.telegram.org/bot${telegramBot.botToken}/sendMessage`)
     .type('form')
