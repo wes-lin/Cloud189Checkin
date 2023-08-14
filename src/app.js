@@ -22,6 +22,7 @@ const superagent = require('superagent');
 const config = require('../config');
 const accounts = require('../accounts');
 const serverChan = require('../serverChan');
+const telegramBot = require('../telegramBot');
 
 const client = superagent.agent();
 const headers = {
@@ -222,17 +223,45 @@ const pushServerChan = (title, desp) => {
     .send(data)
     .end((err, res) => {
       if (err) {
-        logger.error(`推送失败:${JSON.stringify(err)}`);
+        logger.error(`ServerChan推送失败:${JSON.stringify(err)}`);
         return;
       }
       const json = JSON.parse(res.text);
       if (json.code !== 0) {
-        logger.error(`推送失败:${JSON.stringify(json)}`);
+        logger.error(`ServerChan推送失败:${JSON.stringify(json)}`);
       } else {
-        logger.info('推送成功');
+        logger.info('ServerChan推送成功');
       }
     });
 };
+
+const pushTelegramBot = (title, desp) => {
+  if (!(telegramBot.botToken && telegramBot.chatId)) { return; }
+  const data = {
+    chat_id: telegramBot.chatId,
+    text: title + "\n\n" + desp,
+  };
+  superagent.post(`https://api.telegram.org/bot${telegramBot.botToken}/sendMessage`)
+    .type('form')
+    .send(data)
+    .end((err, res) => {
+      if (err) {
+        logger.error(`TelegramBot推送失败:${JSON.stringify(err)}`);
+        return;
+      }
+      const json = JSON.parse(res.text);
+      if (!json.ok) {
+        logger.error(`TelegramBot推送失败:${JSON.stringify(json)}`);
+      } else {
+        logger.info('TelegramBot推送成功');
+      }
+    });
+};
+
+const push = (title, desp) => {
+  pushServerChan(title, desp);
+  pushTelegramBot(title, desp);
+}
 
 // 开始执行程序
 async function main() {
@@ -264,7 +293,7 @@ async function main() {
   } finally {
     const events = recording.replay();
     const content = events.map((e) => `${e.data.join('')}`).join('  \n');
-    pushServerChan('天翼云盘自动签到任务', content);
+    push('天翼云盘自动签到任务', content);
     recording.erase();
   }
 })();
