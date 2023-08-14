@@ -238,7 +238,7 @@ const pushServerChan = (title, desp) => {
 const pushTelegramBot = (title, desp) => {
   if (!(telegramBot.botToken && telegramBot.chatId)) { return; }
   const data = {
-    chat_id: elegramBot.chatId,
+    chat_id: telegramBot.chatId,
     text: title + "\n" + desp,
   };
   superagent.post(`https://api.telegram.org/bot${telegramBot.botToken}/sendMessage`)
