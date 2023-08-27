@@ -78,6 +78,8 @@ npm start
 
 ## 更新内容
 
+### 2023-08-14
+[支持Telegram推送](https://github.com/wes-lin/Cloud189Checkin/pull/18)
 ### 2023-06-09
 [添加错误重试](https://github.com/wes-lin/Cloud189Checkin/issues/14)
 ### 2023-06-05
