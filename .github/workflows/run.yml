@@ -33,9 +33,9 @@ jobs:
         TY_PASSWORD3: ${{secrets.TY_PASSWORD3}}
         TY_USER_NAME4: ${{secrets.TY_USER_NAME4}}
         TY_PASSWORD4: ${{secrets.TY_PASSWORD4}}
-        -- Server
+        # Server
         SENDKEY: ${{secrets.SENDKEY}}
-        -- Telegram
+        # Telegram
         TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
         TELEGRAM_CHAT_ID: ${{secrets.TELEGRAM_CHAT_ID}}
       with:
