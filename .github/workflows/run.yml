@@ -38,6 +38,9 @@ jobs:
         # Telegram
         TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
         TELEGRAM_CHAT_ID: ${{secrets.TELEGRAM_CHAT_ID}}
+        # WecomBot
+        WECOM_BOT_KEY: ${{secrets.WECOM_BOT_KEY}}
+        WECOM_BOT_TELPHONE: ${{secrets.WECOM_BOT_TELPHONE}}
       with:
         timeout_minutes: 10
         max_attempts: 3
