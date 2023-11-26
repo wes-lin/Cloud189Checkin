@@ -1,16 +1,14 @@
-module.exports = [{
-  userName: process.env.TY_USER_NAME || 'userName',
-  password: process.env.TY_PASSWORD || 'password',
-}, {
-  userName: process.env.TY_USER_NAME1,
-  password: process.env.TY_PASSWORD1,
-}, {
-  userName: process.env.TY_USER_NAME2,
-  password: process.env.TY_PASSWORD2,
-}, {
-  userName: process.env.TY_USER_NAME3,
-  password: process.env.TY_PASSWORD3,
-}, {
-  userName: process.env.TY_USER_NAME4,
-  password: process.env.TY_PASSWORD4,
-}];
+var accounts = [];
+
+username_arr = process.env.TY_USER_NAME.split(',');
+password_arr = process.env.TY_PASSWORD.split(',');
+
+if (username_arr.length != password_arr.length) {
+    console.log("账号密码个数不一致");
+    process.exit(1);
+}
+for (let index = 0; index < username_arr.length; index++) {
+    accounts.push({ userName: username_arr[index], password: password_arr[index] });
+}
+
+module.exports = [accounts];
