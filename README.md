@@ -20,6 +20,10 @@
 #### TelegramBot推送
 - `TELEGRAM_BOT_TOKEN` *Telegram Bot Token*
 - `TELEGRAM_CHAT_ID` *Telegram 接收推送消息的会话 ID*
+#### 微信群机器人推送
+- `WECOM_BOT_KEY ` *微信群机器人webhook*
+- `WECOM_BOT_TELPHONE ` *接收推送手机号*
+[群机器人配置说明](https://developer.work.weixin.qq.com/document/path/91770)
 ### 执行任务
 1. 点击**Action**，再点击**I understand my workflows, go ahead and enable them**  
 2. 给自己仓库点个start或者修改任意文件后提交一次  
@@ -77,7 +81,8 @@ npm start
 ```
 
 ## 更新内容
-
+### 2023-11-26
+[支持微信群机器人推送](https://github.com/wes-lin/Cloud189Checkin/pull/26)
 ### 2023-08-14
 [支持Telegram推送](https://github.com/wes-lin/Cloud189Checkin/pull/18)
 ### 2023-06-09
