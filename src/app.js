@@ -292,8 +292,21 @@ const push = (title, desp) => {
 
 // 开始执行程序
 async function main() {
-  for (let index = 0; index < accounts.length; index += 1) {
-    const account = accounts[index];
+  //从环境变量中获取账号密码
+  username_arr = accounts[0].userName.split(',');
+  password_arr = accounts[0].password.split(',');
+
+  if (username_arr.length != password_arr.length) {
+    console.error("账号密码个数不一致");
+    process.exit(1);
+  }
+  var _accounts = [];
+  for (let index = 0; index < username_arr.length; index++) {
+    _accounts.push({ userName: username_arr[index].trim(), password: password_arr[index].trim() });
+  }
+  //开始签到
+  for (let index = 0; index < _accounts.length; index += 1) {
+    const account = _accounts[index];
     const { userName, password } = account;
     if (userName && password) {
       const userNameInfo = mask(userName, 3, 7);

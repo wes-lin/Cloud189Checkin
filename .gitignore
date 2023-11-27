@@ -5,6 +5,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 package-lock.json
+pnpm-lock.yaml
 tests/**/coverage/
 
 # Editor directories and files
