@@ -29,7 +29,7 @@ jobs:
         TY_PASSWORD1: ${{secrets.TY_PASSWORD1}}
         TY_USER_NAME2: ${{secrets.TY_USER_NAME2}}
         TY_PASSWORD2: ${{secrets.TY_PASSWORD2}}
-        TY_USER_NAM3: ${{secrets.TY_USER_NAM3}}
+        TY_USER_NAME3: ${{secrets.TY_USER_NAME3}}
         TY_PASSWORD3: ${{secrets.TY_PASSWORD3}}
         TY_USER_NAME4: ${{secrets.TY_USER_NAME4}}
         TY_PASSWORD4: ${{secrets.TY_PASSWORD4}}
@@ -38,6 +38,9 @@ jobs:
         # Telegram
         TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
         TELEGRAM_CHAT_ID: ${{secrets.TELEGRAM_CHAT_ID}}
+        # WecomBot
+        WECOM_BOT_KEY: ${{secrets.WECOM_BOT_KEY}}
+        WECOM_BOT_TELPHONE: ${{secrets.WECOM_BOT_TELPHONE}}
       with:
         timeout_minutes: 10
         max_attempts: 3
