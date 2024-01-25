@@ -286,9 +286,9 @@ const pushWecomBot = (title, desp) => {
 };
 
 const pushWxPusher = (title, desp) => {
-  if (!(wx.appToken && wx.uid)) { return; }
+  if (!(wxpush.appToken && wxpush.uid)) { return; }
   const data = {
-    appToken: wx.appToken,
+    appToken: wxpush.appToken,
     contentType:1,
     summary:title,
     content:desp,
