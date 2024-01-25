@@ -24,6 +24,7 @@ const accounts = require('../accounts');
 const serverChan = require('../serverChan');
 const telegramBot = require('../telegramBot');
 const wecomBot = require('../wecomBot');
+const wxpush = require('../wxPusher')
 
 const client = superagent.agent();
 const headers = {
@@ -284,10 +285,36 @@ const pushWecomBot = (title, desp) => {
     });
 };
 
+const pushWxPusher = (title, desp) => {
+  if (!(wx.appToken && wx.uid)) { return; }
+  const data = {
+    appToken: wx.appToken,
+    contentType:1,
+    summary:title,
+    content:desp,
+    uids:[uid]
+  };
+  superagent.post(`https://wxpusher.zjiecode.com/api/send/message`)
+  .send(data)
+  .end((err, res) => {
+    if (err) {
+      logger.error(`wxPusher推送失败:${JSON.stringify(err)}`);
+      return;
+    }
+    const json = JSON.parse(res.text);
+    if (json.data[0].code !==1000) {
+      logger.error(`wxPusher推送失败:${JSON.stringify(json)}`);
+    } else {
+      logger.info('wxPusher推送成功');
+    }
+  });
+}
+
 const push = (title, desp) => {
   pushServerChan(title, desp);
   pushTelegramBot(title, desp);
   pushWecomBot(title, desp);
+  pushWxPusher(title, desp);
 }
 
 // 开始执行程序

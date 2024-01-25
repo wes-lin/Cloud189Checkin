@@ -24,6 +24,13 @@
 - `WECOM_BOT_KEY ` *微信群机器人webhook*
 - `WECOM_BOT_TELPHONE ` *接收推送手机号*
 [群机器人配置说明](https://developer.work.weixin.qq.com/document/path/91770)
+#### WxPusher推送
+- `WX_PUSHER_APP_TOKEN ` *WxPuser推送AppToken*
+- `WX_PUSHER_UID ` *接收推送UID*
+默认使用是我的WxPusher,你也可以改成你自己wxPusher开发者账户,修改WX_PUSHER_APP_TOKEN. 如果想直接使用我的wxPush应用,请扫描底下二维码进行关联.
+<img src="//wxpusher.zjiecode.com/api/qrcode/4Ix7noqD3L7DMBoSlvig3t4hqjFWzPkdHqAYsg8IzkPreW7d8uGUHi9LJO4EcyJg.jpg" alt="应用二维码" style="width: 120px; height: 120px; margin-bottom: 20px; align-self: center;">
+然后拿到UID后,把WX_PUSHER_UID配成你拿到的UID.
+![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/wxpusher.jpg)
 ### 执行任务
 1. 点击**Action**，再点击**I understand my workflows, go ahead and enable them**  
 2. 给自己仓库点个start或者修改任意文件后提交一次  
@@ -81,6 +88,8 @@ npm start
 ```
 
 ## 更新内容
+### 2024-01-25
+[支持wxPusher推送](https://github.com/wes-lin/Cloud189Checkin/issues/30)
 ### 2023-11-26
 [支持微信群机器人推送](https://github.com/wes-lin/Cloud189Checkin/pull/26)
 ### 2023-08-14
