@@ -28,7 +28,7 @@
 - `WX_PUSHER_APP_TOKEN ` *WxPuser推送AppToken*
 - `WX_PUSHER_UID ` *接收推送UID*
 默认使用是我的WxPusher,你也可以改成你自己wxPusher开发者账户,修改WX_PUSHER_APP_TOKEN. 如果想直接使用我的wxPush应用,请扫描底下二维码进行关联.
-<img src="//https://wxpusher.zjiecode.com/api/qrcode/4Ix7noqD3L7DMBoSlvig3t4hqjFWzPkdHqAYsg8IzkPreW7d8uGUHi9LJO4EcyJg.jpg" alt="应用二维码" style="width: 120px; height: 120px; margin-bottom: 20px; align-self: center;">
+https://wxpusher.zjiecode.com/api/qrcode/4Ix7noqD3L7DMBoSlvig3t4hqjFWzPkdHqAYsg8IzkPreW7d8uGUHi9LJO4EcyJg.jpg
 然后拿到UID后,把WX_PUSHER_UID配成你拿到的UID.
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/wxpusher.jpg)
 ### 执行任务
