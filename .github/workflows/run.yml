@@ -41,6 +41,9 @@ jobs:
         # WecomBot
         WECOM_BOT_KEY: ${{secrets.WECOM_BOT_KEY}}
         WECOM_BOT_TELPHONE: ${{secrets.WECOM_BOT_TELPHONE}}
+        # WxPusher
+        WX_PUSHER_APP_TOKEN : ${{secrets.WX_PUSHER_APP_TOKEN}}
+        WX_PUSHER_UID: ${{secrets.WX_PUSHER_UID}}
       with:
         timeout_minutes: 10
         max_attempts: 3
