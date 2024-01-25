@@ -292,7 +292,7 @@ const pushWxPusher = (title, desp) => {
     contentType:1,
     summary:title,
     content:desp,
-    uids:[uid]
+    uids:[wxpush.uid]
   };
   superagent.post(`https://wxpusher.zjiecode.com/api/send/message`)
   .send(data)
