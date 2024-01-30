@@ -87,18 +87,4 @@ module.exports = [{
 npm start
 ```
 
-## 更新内容
-### 2024-01-25
-[支持wxPusher推送](https://github.com/wes-lin/Cloud189Checkin/issues/30)
-### 2023-11-26
-[支持微信群机器人推送](https://github.com/wes-lin/Cloud189Checkin/pull/26)
-### 2023-08-14
-[支持Telegram推送](https://github.com/wes-lin/Cloud189Checkin/pull/18)
-### 2023-06-09
-[添加错误重试](https://github.com/wes-lin/Cloud189Checkin/issues/14)
-### 2023-06-05
-[支持Server酱推送](https://github.com/wes-lin/Cloud189Checkin/issues/8)
-### 2023-05-19
-[支持多账户](https://github.com/wes-lin/Cloud189Checkin/issues/7)
-### 2023-05-15
-[更新appConf获取方式](https://github.com/wes-lin/Cloud189Checkin/issues/5)
+## ![更新内容](https://github.com/wes-lin/Cloud189Checkin/wiki)
