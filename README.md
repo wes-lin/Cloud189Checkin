@@ -86,7 +86,5 @@ module.exports = [{
 ``` bash
 npm start
 ```
-## 交流群
-![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/qq-group.jpg)
 
 ## [更新内容](https://github.com/wes-lin/Cloud189Checkin/wiki/更新内容)
