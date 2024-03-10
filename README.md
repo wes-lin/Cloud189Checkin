@@ -15,6 +15,7 @@
 创建好后编辑user环境，添加两个变量TY_USER_NAME 是你的天翼网盘账号，TY_PASSWORD 是的你密码。现已支持多账户,最多可添加5个账户，第二个账户用户名变量是TY_USER_NAME1，密码变量是TY_PASSWORD1,以此类推，最多到TY_USER_NAME4,TY_PASSWORD4。
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/account.jpg)
 ### 设置推送
+
 #### Server酱
 为了考虑到不同客户端兼容性,采用了Server酱,只需多配置下SENDKEY
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/push.png)就行,Server酱的配置和sendkey的获取可参看[Server酱官网](https://sct.ftqq.com/)
