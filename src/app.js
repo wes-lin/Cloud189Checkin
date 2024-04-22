@@ -198,6 +198,7 @@ const doTask = async () => {
     'https://m.cloud.189.cn/v2/drawPrizeMarketDetails.action?taskId=TASK_2022_FLDFS_KJ&activityId=ACT_SIGNIN',
   ];
 
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const result = [];
   for (let index = 0; index < tasks.length; index += 1) {
     const task = tasks[index];
@@ -210,7 +211,8 @@ const doTask = async () => {
     } else {
       result.push(`第${index}次抽奖成功,抽奖获得${res.prizeName}`);
     }
-  }
+  await delay(5000); // 延迟5秒
+}
   return result;
 };
 
