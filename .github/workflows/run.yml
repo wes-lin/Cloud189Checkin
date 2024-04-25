@@ -25,14 +25,19 @@ jobs:
       env:
         TY_USER_NAME: ${{secrets.TY_USER_NAME}}
         TY_PASSWORD: ${{secrets.TY_PASSWORD}}
+        TY_FAMILY_ID: ${{secrets.TY_FAMILY_ID}}
         TY_USER_NAME1: ${{secrets.TY_USER_NAME1}}
         TY_PASSWORD1: ${{secrets.TY_PASSWORD1}}
+        TY_FAMILY_ID1: ${{secrets.TY_FAMILY_ID1}}
         TY_USER_NAME2: ${{secrets.TY_USER_NAME2}}
         TY_PASSWORD2: ${{secrets.TY_PASSWORD2}}
+        TY_FAMILY_ID2: ${{secrets.TY_FAMILY_ID2}}
         TY_USER_NAME3: ${{secrets.TY_USER_NAME3}}
         TY_PASSWORD3: ${{secrets.TY_PASSWORD3}}
+        TY_FAMILY_ID3: ${{secrets.TY_FAMILY_ID3}}
         TY_USER_NAME4: ${{secrets.TY_USER_NAME4}}
         TY_PASSWORD4: ${{secrets.TY_PASSWORD4}}
+        TY_FAMILY_ID4: ${{secrets.TY_FAMILY_ID4}}
         # Server
         SENDKEY: ${{secrets.SENDKEY}}
         # Telegram
