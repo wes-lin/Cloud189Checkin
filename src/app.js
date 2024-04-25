@@ -216,7 +216,7 @@ const doTask = async (familyId) => {
   if(familyId){
     const url = `http://api.cloud.189.cn/family/manage/exeFamilyUserSign.action?familyId=${familyId}`
     const res = await doGet(url);
-    console.log(res)
+    logger.error(res)
   }
   return result;
 };
