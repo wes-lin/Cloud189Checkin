@@ -211,13 +211,13 @@ const doTask = async (familyId) => {
     } else {
       result.push(`第${index}次抽奖成功,抽奖获得${res.prizeName}`);
     }
-  await delay(5000); // 延迟5秒
+    await delay(5000); // 延迟5秒
+  }
   if(familyId){
     const url = `http://api.cloud.189.cn/family/manage/exeFamilyUserSign.action?familyId=${familyId}`
     const res = await doGet(url);
     console.log(res)
   }
-}
   return result;
 };
 
