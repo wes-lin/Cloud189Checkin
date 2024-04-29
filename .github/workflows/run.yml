@@ -12,44 +12,39 @@ jobs:
     runs-on: ubuntu-latest
     environment: user
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup Node.js environment
-      uses: actions/setup-node@v3
-      with:
-        node-version: 14
-    - name: init
-      run: npm install
-    - name: run
-      id: run
-      uses: nick-fields/retry@v2
-      env:
-        TY_USER_NAME: ${{secrets.TY_USER_NAME}}
-        TY_PASSWORD: ${{secrets.TY_PASSWORD}}
-        TY_FAMILY_ID: ${{secrets.TY_FAMILY_ID}}
-        TY_USER_NAME1: ${{secrets.TY_USER_NAME1}}
-        TY_PASSWORD1: ${{secrets.TY_PASSWORD1}}
-        TY_FAMILY_ID1: ${{secrets.TY_FAMILY_ID1}}
-        TY_USER_NAME2: ${{secrets.TY_USER_NAME2}}
-        TY_PASSWORD2: ${{secrets.TY_PASSWORD2}}
-        TY_FAMILY_ID2: ${{secrets.TY_FAMILY_ID2}}
-        TY_USER_NAME3: ${{secrets.TY_USER_NAME3}}
-        TY_PASSWORD3: ${{secrets.TY_PASSWORD3}}
-        TY_FAMILY_ID3: ${{secrets.TY_FAMILY_ID3}}
-        TY_USER_NAME4: ${{secrets.TY_USER_NAME4}}
-        TY_PASSWORD4: ${{secrets.TY_PASSWORD4}}
-        TY_FAMILY_ID4: ${{secrets.TY_FAMILY_ID4}}
-        # Server
-        SENDKEY: ${{secrets.SENDKEY}}
-        # Telegram
-        TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
-        TELEGRAM_CHAT_ID: ${{secrets.TELEGRAM_CHAT_ID}}
-        # WecomBot
-        WECOM_BOT_KEY: ${{secrets.WECOM_BOT_KEY}}
-        WECOM_BOT_TELPHONE: ${{secrets.WECOM_BOT_TELPHONE}}
-        # WxPusher
-        WX_PUSHER_APP_TOKEN : ${{secrets.WX_PUSHER_APP_TOKEN}}
-        WX_PUSHER_UID: ${{secrets.WX_PUSHER_UID}}
-      with:
-        timeout_minutes: 10
-        max_attempts: 3
-        command: npm start
+      - uses: actions/checkout@v3
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      - name: init
+        run: npm install
+      - name: run
+        id: run
+        uses: nick-fields/retry@v2
+        env:
+          TY_USER_NAME: ${{secrets.TY_USER_NAME}}
+          TY_PASSWORD: ${{secrets.TY_PASSWORD}}
+          TY_USER_NAME1: ${{secrets.TY_USER_NAME1}}
+          TY_PASSWORD1: ${{secrets.TY_PASSWORD1}}
+          TY_USER_NAME2: ${{secrets.TY_USER_NAME2}}
+          TY_PASSWORD2: ${{secrets.TY_PASSWORD2}}
+          TY_USER_NAME3: ${{secrets.TY_USER_NAME3}}
+          TY_PASSWORD3: ${{secrets.TY_PASSWORD3}}
+          TY_USER_NAME4: ${{secrets.TY_USER_NAME4}}
+          TY_PASSWORD4: ${{secrets.TY_PASSWORD4}}
+          # Server
+          SENDKEY: ${{secrets.SENDKEY}}
+          # Telegram
+          TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
+          TELEGRAM_CHAT_ID: ${{secrets.TELEGRAM_CHAT_ID}}
+          # WecomBot
+          WECOM_BOT_KEY: ${{secrets.WECOM_BOT_KEY}}
+          WECOM_BOT_TELPHONE: ${{secrets.WECOM_BOT_TELPHONE}}
+          # WxPusher
+          WX_PUSHER_APP_TOKEN: ${{secrets.WX_PUSHER_APP_TOKEN}}
+          WX_PUSHER_UID: ${{secrets.WX_PUSHER_UID}}
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: npm start
