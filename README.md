@@ -6,7 +6,6 @@
 - [更新内容](#更新内容)
 
 ## GitHub Action运行
-
 ### Fork此仓库
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/fork.png)
 ### 设置账号密码
