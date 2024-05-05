@@ -6,7 +6,7 @@ on:
   watch:
     types: started
   schedule:
-    - cron: 35 3 * * *
+    - cron: 42 8 * * *
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -45,6 +45,6 @@ jobs:
           WX_PUSHER_APP_TOKEN: ${{secrets.WX_PUSHER_APP_TOKEN}}
           WX_PUSHER_UID: ${{secrets.WX_PUSHER_UID}}
         with:
-          timeout_minutes: 10
+          timeout_minutes: 8
           max_attempts: 3
           command: npm start
