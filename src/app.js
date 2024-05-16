@@ -24,6 +24,7 @@ const serverChan = require("./push/serverChan");
 const telegramBot = require("./push/telegramBot");
 const wecomBot = require("./push/wecomBot");
 const wxpush = require("./push/wxPusher");
+const pushPlus = require("./push/pushPlus");
 const accounts = require("../accounts");
 const config = require("../config");
 
@@ -477,11 +478,39 @@ const pushWxPusher = (title, desp) => {
     });
 };
 
+const pushPushplus = (title, desp) => {
+  if (!pushPlus.token) {
+    return;
+  }
+  const data = {
+    template: "html",
+    token: pushPlus.token,
+    title,
+    content: desp,
+  };
+  superagent
+    .post("http://www.pushplus.plus/send")
+    .send(data)
+    .end((err, res) => {
+      if (err) {
+        logger.error(`pushPlus推送失败:${JSON.stringify(err)}`);
+        return;
+      }
+      const json = JSON.parse(res.text);
+      if (json.code !== 200) {
+        logger.error(`pushPlus推送失败:${JSON.stringify(json)}`);
+      } else {
+        logger.info("pushPlus推送成功");
+      }
+    });
+};
+
 const push = (title, desp) => {
   pushServerChan(title, desp);
   pushTelegramBot(title, desp);
   pushWecomBot(title, desp);
   pushWxPusher(title, desp);
+  pushPushplus(title, desp);
 };
 
 // 开始执行程序

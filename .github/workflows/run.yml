@@ -35,6 +35,8 @@ jobs:
           # WxPusher
           WX_PUSHER_APP_TOKEN: ${{secrets.WX_PUSHER_APP_TOKEN}}
           WX_PUSHER_UID: ${{secrets.WX_PUSHER_UID}}
+          # PushPlus
+          PUSHPLUS_TOKEN: ${{secrets.PUSHPLUS_TOKEN}}
         with:
           timeout_minutes: 10
           max_attempts: 3
