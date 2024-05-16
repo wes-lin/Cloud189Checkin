@@ -1,22 +1,11 @@
-module.exports = [
-  {
-    userName: process.env.TY_USER_NAME || "userName",
-    password: process.env.TY_PASSWORD || "password",
-  },
-  {
-    userName: process.env.TY_USER_NAME1,
-    password: process.env.TY_PASSWORD1,
-  },
-  {
-    userName: process.env.TY_USER_NAME2,
-    password: process.env.TY_PASSWORD2,
-  },
-  {
-    userName: process.env.TY_USER_NAME3,
-    password: process.env.TY_PASSWORD3,
-  },
-  {
-    userName: process.env.TY_USER_NAME4,
-    password: process.env.TY_PASSWORD4,
-  },
-];
+let accountsText = process.env.ACCOUNTS_189CLOUD || `userName----password`;
+
+accountsText = accountsText.trim().replace('\r', '\n').replace('\n\n', '\n').split('\n');
+
+let accounts = [];
+for (let i=0; i<accountsText.length; i++) {
+    a = accountsText[i].split('----');
+    accounts.push({ userName: a[0], password: a[1] });
+}
+
+module.exports = accounts;
