@@ -26,36 +26,36 @@ const accounts = require("../accounts");
 
 const mask = (s, start, end) => s.split("").fill("*", start, end).join("");
 
+const buildTaskResult = (res, result) => {
+  const index = result.length;
+  if (res.errorCode === "User_Not_Chance") {
+    result.push(`第${index}次抽奖失败,次数不足`);
+  } else {
+    result.push(`第${index}次抽奖成功,抽奖获得${res.prizeName}`);
+  }
+};
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 // 任务 1.签到 2.天天抽红包 3.自动备份抽红包
 const doTask = async (cloudClient) => {
-  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const result = [];
   const res1 = await cloudClient.userSign();
   result.push(
     `${res1.isSign ? "已经签到过了，" : ""}签到获得${res1.netdiskBonus}M空间`
   );
   await delay(5000); // 延迟5秒
-  let index = 1;
-  const buildResult = (index, res) => {
-    if (res2.errorCode === "User_Not_Chance") {
-      result.push(`第${index}次抽奖失败,次数不足`);
-    } else {
-      result.push(`第${index}次抽奖成功,抽奖获得${res.prizeName}`);
-    }
-  };
-  const res2 = await cloudClient.taskSign();
-  buildResult(index, res2);
 
-  index++;
+  const res2 = await cloudClient.taskSign();
+  buildTaskResult(res2, result);
+
   await delay(5000); // 延迟5秒
   const res3 = await cloudClient.taskPhoto();
-  buildResult(index, res3);
+  buildTaskResult(res3, result);
 
-  index++;
   await delay(5000); // 延迟5秒
   const res4 = await cloudClient.taskKJ();
-  buildResult(index, res4);
-
+  buildTaskResult(res4, result);
   return result;
 };
 
@@ -226,6 +226,7 @@ async function main() {
           ).toFixed(2)}G`
         );
       } catch (e) {
+        console.log(e);
         if (e.code === "ECONNRESET") {
           throw e;
         }
