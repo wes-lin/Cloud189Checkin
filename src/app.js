@@ -226,7 +226,7 @@ async function main() {
           ).toFixed(2)}G`
         );
       } catch (e) {
-        console.log(e);
+        logger.error(e);
         if (e.code === "ECONNRESET") {
           throw e;
         }
