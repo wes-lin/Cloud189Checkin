@@ -37,7 +37,7 @@ https://wxpusher.zjiecode.com/api/qrcode/4Ix7noqD3L7DMBoSlvig3t4hqjFWzPkdHqAYsg8
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/wxpusher.jpg)
 ### 执行任务
 1. 点击**Action**，再点击**I understand my workflows, go ahead and enable them**  
-2. 给自己仓库点个start或者修改任意文件后提交一次  
+2. 给自己仓库点个start或者修改任意文件后提交一次或者手动点击运行
 ![](http://tu.yaohuo.me/imgs/2020/06/34ca160c972b9927.png)
 3. 每天早上10点执行任务
 
