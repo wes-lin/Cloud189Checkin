@@ -5,6 +5,7 @@ on:
       - main
   watch:
     types: started
+  workflow_dispatch:
   schedule:
     - cron: 35 3 * * *
 jobs:
