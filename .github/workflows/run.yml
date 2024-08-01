@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: 20
       - name: init secrets
-      - uses: shine1594/secrets-to-env-action@master
+        uses: shine1594/secrets-to-env-action@master
         with:
           secrets: ${{ toJSON(secrets) }}
           secrets_env: production
