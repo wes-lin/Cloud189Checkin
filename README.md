@@ -1,9 +1,13 @@
 # Cloud189Checkin
-天翼网盘自动签到（随机容量) 和抽奖（三次，每次50M，共150M）获取空间  
+天翼网盘自动签到（随机容量) 和抽奖（三次，每次50M，共150M）获取空间，家庭空间签到（随机容量）。
+# 重要说明！！！
+请勿直接修改accounts.js，然后提交到github，源码仓库是公开的，别人可以直接看到你的账号密码。因为错误使用本仓库导致账号密码泄漏，本人概不负责！！！
 ## **目录**
 - [GitHub Action运行](#GitHubAction运行)
 - [本地运行](#本地运行)
+- [其他环境集成](#其他环境集成)
 - [更新内容](#更新内容)
+
 
 ## GitHub Action运行
 ### Fork此仓库
@@ -24,9 +28,16 @@
 - `WECOM_BOT_KEY ` *微信群机器人webhook*
 - `WECOM_BOT_TELPHONE ` *接收推送手机号*
 [群机器人配置说明](https://developer.work.weixin.qq.com/document/path/91770)
+#### WxPusher推送
+- `WX_PUSHER_APP_TOKEN ` *WxPuser推送AppToken*
+- `WX_PUSHER_UID ` *接收推送UID*
+默认使用是我的WxPusher,你也可以改成你自己wxPusher开发者账户,修改WX_PUSHER_APP_TOKEN. 如果想直接使用我的wxPush应用,请扫描底下二维码进行关联.
+https://wxpusher.zjiecode.com/api/qrcode/4Ix7noqD3L7DMBoSlvig3t4hqjFWzPkdHqAYsg8IzkPreW7d8uGUHi9LJO4EcyJg.jpg
+然后拿到UID后,把WX_PUSHER_UID配成你拿到的UID.
+![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/wxpusher.jpg)
 ### 执行任务
 1. 点击**Action**，再点击**I understand my workflows, go ahead and enable them**  
-2. 给自己仓库点个start或者修改任意文件后提交一次  
+2. 给自己仓库点个start或者修改任意文件后提交一次或者手动点击运行
 ![](http://tu.yaohuo.me/imgs/2020/06/34ca160c972b9927.png)
 3. 每天早上10点执行任务
 
@@ -79,17 +90,7 @@ module.exports = [{
 ``` bash
 npm start
 ```
+## 其他环境集成
+我已经天翼网盘的相关API集成到[SDK](https://github.com/wes-lin/cloud189-sdk)了，有编程能力的同学可以自行拓展，集成到自己的代码环境。
 
-## 更新内容
-### 2023-11-26
-[支持微信群机器人推送](https://github.com/wes-lin/Cloud189Checkin/pull/26)
-### 2023-08-14
-[支持Telegram推送](https://github.com/wes-lin/Cloud189Checkin/pull/18)
-### 2023-06-09
-[添加错误重试](https://github.com/wes-lin/Cloud189Checkin/issues/14)
-### 2023-06-05
-[支持Server酱推送](https://github.com/wes-lin/Cloud189Checkin/issues/8)
-### 2023-05-19
-[支持多账户](https://github.com/wes-lin/Cloud189Checkin/issues/7)
-### 2023-05-15
-[更新appConf获取方式](https://github.com/wes-lin/Cloud189Checkin/issues/5)
+## [更新内容](https://github.com/wes-lin/Cloud189Checkin/wiki/更新内容)
