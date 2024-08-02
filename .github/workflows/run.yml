@@ -12,7 +12,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    environment: user
+    environment: test
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node.js environment
