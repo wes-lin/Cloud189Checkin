@@ -2,7 +2,15 @@
 require('dotenv').config()
 const log4js = require("log4js");
 const recording = require("log4js/lib/appenders/recording");
-console.log(JSON.stringify(process.env))
+const fs = require("fs");
+
+fs.readFile(path.join(__dirname,'./.env'),(error,result)=>{
+  if(error){
+    console.error(error)
+  }
+  console.log(result)
+})
+
 log4js.configure({
   appenders: {
     vcr: {
