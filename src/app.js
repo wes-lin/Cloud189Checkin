@@ -1,16 +1,18 @@
 /* eslint-disable no-await-in-loop */
-require('dotenv').config()
+const dotenv = require('dotenv')
 const log4js = require("log4js");
 const recording = require("log4js/lib/appenders/recording");
 const fs = require("fs");
-
-fs.readFile(path.join(__dirname,'./.env'),(error,result)=>{
+const path = require('path')
+fs.readFile(path.join(__dirname,'../.env'),(error,result)=>{
   if(error){
     console.error(error)
   }
-  console.log(result)
+  const config = dotenv.parse(result)
+  console.log(config)
 })
 
+dotenv.config()
 log4js.configure({
   appenders: {
     vcr: {
