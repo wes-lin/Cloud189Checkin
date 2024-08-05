@@ -20,10 +20,9 @@ jobs:
         with:
           node-version: 18
       - name: init secrets
-        uses: shine1594/secrets-to-env-action@master
+        uses: SpicyPizza/create-envfile@v2.0
         with:
-          secrets: ${{ toJSON(secrets) }}
-          secrets_env: production
+          file_name: .env
       - name: init
         run: npm install
       - name: run
