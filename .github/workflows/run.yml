@@ -12,7 +12,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    environment: test
+    environment: user
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node.js environment
@@ -26,8 +26,6 @@ jobs:
             secrets_env: production
             prefix_prod: ''
             file_name_prod: .env
-      - name: Display my_env
-        run: cat .env
       - name: init
         run: npm install
       - name: run
