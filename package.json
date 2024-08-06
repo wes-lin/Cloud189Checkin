@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node --unhandled-rejections=strict ./src/app.js",
+    "start": "node --env-file=.env --unhandled-rejections=strict ./src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
