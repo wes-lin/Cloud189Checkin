@@ -24,7 +24,7 @@ jobs:
         with:
             secrets: ${{ toJSON(secrets) }}
             secrets_env: production
-            prefix_prod: TY_
+            prefix_prod: ''
             file_name_prod: .env
       - name: Display my_env
         run: cat .env
