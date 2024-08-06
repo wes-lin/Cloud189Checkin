@@ -97,8 +97,6 @@ npm install
 TY_ACCOUNTS=[{"userName":"userName","password":"password"}]
 ```
 
-![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/local.png)
-
 ### 推送
 
 修改 serverChan.js 或者添加环境变量 SENDKEY
