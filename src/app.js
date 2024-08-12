@@ -1,4 +1,5 @@
 /* eslint-disable no-await-in-loop */
+require('dotenv').config()
 const log4js = require("log4js");
 const recording = require("log4js/lib/appenders/recording");
 log4js.configure({
