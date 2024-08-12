@@ -226,7 +226,7 @@ async function main() {
         );
       } catch (e) {
         logger.error(e);
-        if (e.code === "ECONNRESET") {
+        if (e.code === "ETIMEDOUT") {
           throw e;
         }
       } finally {
