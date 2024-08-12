@@ -70,7 +70,7 @@ Actions > Cloud check in action > build
 ### 环境配置
 
 ```
-Node.js 20+
+Node.js 18+
 ```
 
 ### 克隆项目
