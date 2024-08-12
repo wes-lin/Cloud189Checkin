@@ -112,7 +112,7 @@ npm start
 
 我已经天翼网盘的相关 API 集成到[SDK](https://github.com/wes-lin/cloud189-sdk)了，有编程能力的同学可以自行拓展，集成到自己的代码环境。
 
-## [交流群]
+## 交流群
 
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/group.jpg)
 
