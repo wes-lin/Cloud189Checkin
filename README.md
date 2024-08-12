@@ -11,6 +11,7 @@
 - [GitHub Action 运行](#GitHubAction运行)
 - [本地运行](#本地运行)
 - [其他环境集成](#其他环境集成)
+- [交流群](#交流群)
 - [更新内容](#更新内容)
 
 ## GitHub Action 运行
@@ -70,7 +71,7 @@ Actions > Cloud check in action > build
 ### 环境配置
 
 ```
-Node.js 20+
+Node.js 18+
 ```
 
 ### 克隆项目
@@ -110,5 +111,9 @@ npm start
 ## 其他环境集成
 
 我已经天翼网盘的相关 API 集成到[SDK](https://github.com/wes-lin/cloud189-sdk)了，有编程能力的同学可以自行拓展，集成到自己的代码环境。
+
+## 交流群
+
+![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/group.jpg)
 
 ## [更新内容](https://github.com/wes-lin/Cloud189Checkin/wiki/更新内容)

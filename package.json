@@ -4,13 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node --env-file=.env --unhandled-rejections=strict ./src/app.js",
+    "start": "node --unhandled-rejections=strict ./src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "cloud189-sdk": "^1.0.2",
+    "dotenv": "^16.4.5",
     "log4js": "^6.9.1",
     "node-jsencrypt": "^1.0.0",
     "superagent": "^7.1.3"
