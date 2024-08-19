@@ -27,6 +27,10 @@
 创建好后编辑 user 环境，添加变量 TY_ACCOUNTS, userName 和 password 为你的天翼账号和密码,可以添加多个账号如[{"userName":"账号 1","password":"账号 1 的密码"},{"userName":"账号 2","password":"账号 2 的密码"}]
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/accounts.jpg)
 
+如果你遇到你账号密码中有特殊字符如#$等无法解析的[SyntaxError](https://github.com/wes-lin/Cloud189Checkin/issues/76),请在你的配置中将TY_ACCOUNTS用单引号包起来
+例如'[{"userName":"1234567890","password":"123334#$#$"}]'
+
+
 ### 设置推送
 
 #### Server 酱
@@ -110,7 +114,7 @@ npm start
 
 ## 其他环境集成
 
-我已经天翼网盘的相关 API 集成到[SDK](https://github.com/wes-lin/cloud189-sdk)了，有编程能力的同学可以自行拓展，集成到自己的代码环境。
+我已经把天翼网盘的相关 API 集成到[SDK](https://github.com/wes-lin/cloud189-sdk)了，有编程能力的同学可以自行拓展，集成到自己的代码环境。
 
 ## 交流群
 
