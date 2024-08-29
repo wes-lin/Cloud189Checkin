@@ -14,9 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: user
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@main
       - name: Setup Node.js environment
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@main
         with:
           node-version: 18
       - name: init secrets
@@ -30,8 +30,23 @@ jobs:
         run: npm install
       - name: run
         id: run
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@master
         with:
           timeout_minutes: 10
           max_attempts: 3
           command: npm start
+      - name: Keep Running
+        run: |
+          git config --local user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
+          git config --local user.name "${{ github.actor }}"
+          git remote set-url origin https://${{ github.actor }}:${{ github.token }}@github.com/${{ github.repository }}
+          git pull --rebase --autostash
+          git commit --allow-empty -m "Keep Running..."
+          git push
+      - name: Delete old workflow run
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          retain_days: 0
+          keep_minimum_runs: 50
