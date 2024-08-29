@@ -20,6 +20,11 @@
 
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/fork.png)
 
+### 设置工作流权限
+将Settings -> Actions -> Workflow permissions 改成 Read and write permissions
+![image](https://github.com/user-attachments/assets/28d27a78-73f2-489e-aa7e-cac87c0fc509)
+
+
 ### 设置账号密码
 
 新版本的 git Action 需要创建 environment 来配合使用，创建一个名为 user 的环境。
