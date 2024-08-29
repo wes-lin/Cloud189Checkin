@@ -40,7 +40,7 @@ jobs:
           git config --local user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
           git config --local user.name "${{ github.actor }}"
           git remote set-url origin https://${{ github.actor }}:${{ github.token }}@github.com/${{ github.repository }}
-          git pull --rebase
+          git pull --rebase --autostash
           git commit --allow-empty -m "Keep Running..."
           git push
       - name: Delete old workflow run
