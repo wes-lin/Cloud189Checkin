@@ -1,0 +1,37 @@
+name: Cloud check in action
+on:
+  push:
+    branches:
+      - main
+      - dev
+  watch:
+    types: started
+  workflow_dispatch:
+  schedule:
+    - cron: '0 10 * * *'
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: user
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: init secrets
+        uses: shine1594/secrets-to-env-action@master
+        with:
+          secrets: ${{ toJSON(secrets) }}
+          secrets_env: production
+          prefix_prod: ""
+          file_name_prod: .env
+      - name: init
+        run: npm install
+      - name: run
+        id: run
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: npm start
