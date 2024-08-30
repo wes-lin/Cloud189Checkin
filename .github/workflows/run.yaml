@@ -8,7 +8,7 @@ on:
     types: started
   workflow_dispatch:
   schedule:
-    - cron: '0 10 * * *'
+    - cron: '31 11 * * *'
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
