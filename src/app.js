@@ -22,6 +22,7 @@ const serverChan = require("./push/serverChan");
 const telegramBot = require("./push/telegramBot");
 const wecomBot = require("./push/wecomBot");
 const wxpush = require("./push/wxPusher");
+const dingTalkBot = require("./push/dingTalkBot");
 const accounts = require("../accounts");
 
 const mask = (s, start, end) => s.split("").fill("*", start, end).join("");
@@ -183,7 +184,6 @@ const pushWxPusher = (title, desp) => {
       }
     });
 };
-// 新增钉钉推送函数
 const pushDingTalk = async (title, desp) => {
   const accessToken = process.env.DINGTALK_ACCESS_TOKEN; // 从环境变量中获取 Access Token
   if (!accessToken) {
