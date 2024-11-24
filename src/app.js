@@ -22,7 +22,6 @@ const serverChan = require("./push/serverChan");
 const telegramBot = require("./push/telegramBot");
 const wecomBot = require("./push/wecomBot");
 const wxpush = require("./push/wxPusher");
-const dingTalkBot = require("./push/dingTalkBot");
 const accounts = require("../accounts");
 
 const mask = (s, start, end) => s.split("").fill("*", start, end).join("");
