@@ -183,12 +183,41 @@ const pushWxPusher = (title, desp) => {
       }
     });
 };
+// 新增钉钉推送函数
+const pushDingTalk = async (title, desp) => {
+  const accessToken = process.env.DINGTALK_ACCESS_TOKEN; // 从环境变量中获取 Access Token
+  if (!accessToken) {
+    logger.warn("❌ 未配置钉钉 Access Token");
+    return;
+  }
+
+  const url = `https://oapi.dingtalk.com/robot/send?access_token=${accessToken}`;
+  const data = {
+    msgtype: "text",
+    text: {
+      content: `${title}\n\n${desp}`,
+    },
+  };
+
+  try {
+    const res = await superagent.post(url).send(data);
+    const json = JSON.parse(res.text);
+    if (json.errcode !== 0) {
+      logger.error(`钉钉推送失败: ${JSON.stringify(json)}`);
+    } else {
+      logger.info("钉钉推送成功");
+    }
+  } catch (err) {
+    logger.error(`钉钉推送失败: ${err.message}`);
+  }
+};
 
 const push = (title, desp) => {
   pushServerChan(title, desp);
   pushTelegramBot(title, desp);
   pushWecomBot(title, desp);
   pushWxPusher(title, desp);
+  pushDingTalk(title, desp); // 添加钉钉推送
 };
 
 // 开始执行程序
