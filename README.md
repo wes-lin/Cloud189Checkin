@@ -126,3 +126,7 @@ npm start
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/group.jpg)
 
 ## [更新内容](https://github.com/wes-lin/Cloud189Checkin/wiki/更新内容)
+
+## [月海更新内容]
+
+1. 增加了 pushPlus 推送，需要在环境变量中添加 PUSH_PLUS_TOKEN
