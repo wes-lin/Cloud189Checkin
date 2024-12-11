@@ -23,6 +23,7 @@ const telegramBot = require("./push/telegramBot");
 const wecomBot = require("./push/wecomBot");
 const wxpush = require("./push/wxPusher");
 const accounts = require("../accounts");
+const pushPlus = require("./push/pushPlus");
 
 const mask = (s, start, end) => s.split("").fill("*", start, end).join("");
 
@@ -184,11 +185,42 @@ const pushWxPusher = (title, desp) => {
     });
 };
 
+const pushPlusPusher = (title, desp) => {
+  // 如果没有配置 pushPlus 的 token，则不执行推送
+  if (!(pushPlus.token)) {
+    return;
+  }
+  // 请求体
+  const data = {
+    token: pushPlus.token,
+    title: title,
+    content: desp
+  };
+  // 发送请求
+  superagent
+      .post("http://www.pushplus.plus/send/")
+      .send(data)
+      .end((err, res) => {
+        if (err) {
+          logger.error(`pushPlus 推送失败:${JSON.stringify(err)}`);
+          return;
+        }
+        const json = JSON.parse(res.text);
+        if (json.data[0].code !== 1000) {
+          logger.error(`pushPlus 推送失败:${JSON.stringify(json)}`);
+        } else {
+          logger.info("pushPlus 推送成功");
+        }
+      });
+};
+
 const push = (title, desp) => {
   pushServerChan(title, desp);
   pushTelegramBot(title, desp);
   pushWecomBot(title, desp);
   pushWxPusher(title, desp);
+  // pushPlus 推送
+  pushPlusPusher(title, desp);
 };
 
 // 开始执行程序
