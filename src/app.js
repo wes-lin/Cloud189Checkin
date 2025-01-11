@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
+require("dotenv").config();
 const log4js = require("log4js");
 const recording = require("log4js/lib/appenders/recording");
-
 log4js.configure({
   appenders: {
     vcr: {
@@ -53,9 +53,6 @@ const doTask = async (cloudClient) => {
   const res3 = await cloudClient.taskPhoto();
   buildTaskResult(res3, result);
 
-  await delay(5000); // 延迟5秒
-  const res4 = await cloudClient.taskKJ();
-  buildTaskResult(res4, result);
   return result;
 };
 
@@ -227,7 +224,7 @@ async function main() {
         );
       } catch (e) {
         logger.error(e);
-        if (e.code === "ECONNRESET") {
+        if (e.code === "ETIMEDOUT") {
           throw e;
         }
       } finally {
