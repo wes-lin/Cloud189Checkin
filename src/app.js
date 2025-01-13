@@ -199,14 +199,14 @@ async function main() {
     if (userName && password) {
       const userNameInfo = mask(userName, 3, 7);
       try {
-        logger.log(`账户 ${userNameInfo}开始执行`);
+        logger.log(` ${userNameInfo}开始执行`);
         const cloudClient = new CloudClient(userName, password);
         await cloudClient.login();
         const result = await doTask(cloudClient);
         result.forEach((r) => logger.log(r));
         const familyResult = await doFamilyTask(cloudClient);
         familyResult.forEach((r) => logger.log(r));
-        logger.log("任务执行完毕");
+      
         const { cloudCapacityInfo, familyCapacityInfo } =
           await cloudClient.getUserSizeInfo();
         logger.log(
@@ -228,7 +228,7 @@ async function main() {
           throw e;
         }
       } finally {
-        logger.log(`账户 ${userNameInfo}执行完毕`);
+        logger.log(`  `);
       }
     }
   }
