@@ -58,6 +58,7 @@ const doTask = async (cloudClient) => {
 const doFamilyTask = async (cloudClient) => {
   const { familyInfoResp } = await cloudClient.getFamilyList();
   const result = [];
+  let totalFamilyBonusToday = 0; // 用于累加今天家庭签到获得的容量
   if (familyInfoResp) {
     for (let index = 0; index < familyInfoResp.length; index += 1) {
        const { familyId } = familyInfoResp[index];
@@ -68,9 +69,11 @@ const doFamilyTask = async (cloudClient) => {
             res.bonusSpace
           }M空间`
       );
+      // 累加今天家庭签到获得的容量
+      totalFamilyBonusToday += res.bonusSpace;
     }
   }
-  return result;
+  return { result, totalFamilyBonusToday };
 };
 
 const pushServerChan = (title, desp) => {
@@ -190,7 +193,7 @@ const push = (title, desp) => {
 
 // 修改后的主函数，只执行签到任务
 async function main() {
-  let totalFamilyBonus = 0; // 用于累加家庭签到获得的容量
+  let totalFamilyBonusToday = 0; // 用于累加所有账号今天家庭签到获得的容量
   for (let index = 0; index < accounts.length; index += 1) {
     const account = accounts[index];
     const { userName, password } = account;
@@ -202,7 +205,7 @@ async function main() {
         await cloudClient.login();
         const result = await doTask(cloudClient);
         result.forEach((r) => logger.log(r));
-        const familyResult = await doFamilyTask(cloudClient);
+        const { result: familyResult, totalFamilyBonusToday: familyBonusToday } = await doFamilyTask(cloudClient);
         familyResult.forEach((r) => logger.log(r));
         logger.log("任务执行完毕");
         const { cloudCapacityInfo, familyCapacityInfo } =
@@ -220,8 +223,8 @@ async function main() {
             1024
           ).toFixed(2)}G`
         );
-        // 累加家庭签到获得的容量
-        totalFamilyBonus += familyCapacityInfo.totalSize;
+        // 累加所有账号今天家庭签到获得的容量
+        totalFamilyBonusToday += familyBonusToday;
       } catch (e) {
         logger.error(e);
         if (e.code === "ETIMEDOUT") {
@@ -233,17 +236,17 @@ async function main() {
     }
   }
   // 将总家庭签到获得的容量转换为GB并保留两位小数
-  const totalFamilyBonusGB = (totalFamilyBonus / 1024 / 1024 / 1024).toFixed(2);
-  logger.log(`所有账号家庭签到总共获得 ${totalFamilyBonusGB}G 空间`);
-  return totalFamilyBonusGB;
+  const totalFamilyBonusTodayGB = (totalFamilyBonusToday / 1024 / 1024 / 1024).toFixed(2);
+  logger.log(`所有账号今天家庭签到总共获得 ${totalFamilyBonusTodayGB}G 空间`);
+  return totalFamilyBonusTodayGB;
 }
 
 (async () => {
   try {
-    const totalFamilyBonusGB = await main();
+    const totalFamilyBonusTodayGB = await main();
     const events = recording.replay();
     const content = events.map((e) => `${e.data.join("")}`).join("  \n");
-    push("天翼云盘自动签到任务", `${content}\n所有账号家庭签到总共获得 ${totalFamilyBonusGB}G 空间`);
+    push("天翼云盘自动签到任务", `${content}\n所有账号今天家庭签到总共获得 ${totalFamilyBonusTodayGB}G 空间`);
     recording.erase();
   } catch (error) {
     logger.error(`任务执行失败: ${error}`);
