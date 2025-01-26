@@ -192,7 +192,18 @@ async function main() {
         await cloudClient.login();
         const result = await doTask(cloudClient);
         const { result: familyResult, totalFamilyBonusToday: familyBonusToday } = await doFamilyTask(cloudClient);
-        lastAccountResult = result.concat(familyResult).join("\n"); // 存储最后一个账号的签到内容
+        const { cloudCapacityInfo, familyCapacityInfo } = await cloudClient.getUserSizeInfo();
+        const accountResult = [
+          `账户 ${userNameInfo}开始执行`,
+          ...result,
+          ...familyResult,
+          `个人总容量：${(cloudCapacityInfo.totalSize / 1024 / 1024 / 1024).toFixed(2)}G`,
+          `家庭总容量：${(familyCapacityInfo.totalSize / 1024 / 1024 / 1024).toFixed(2)}G`,
+          "任务执行完毕"
+        ].join("\n");
+        if (index === accounts.length - 1) {
+          lastAccountResult = accountResult; // 存储最后一个账号的签到内容
+        }
         successfulAccounts += 1; // 累加成功签到的账号数
         totalFamilyBonusToday += familyBonusToday; // 累加今天家庭签到获得的容量
       } catch (e) {
@@ -205,7 +216,7 @@ async function main() {
   }
 
   // 将总家庭签到获得的容量转换为MB并保留两位小数
-  const totalFamilyBonusTodayMB = (totalFamilyBonusToday / 1024 / 1024).toFixed(2);
+  const totalFamilyBonusTodayMB = (totalFamilyBonusToday / 1024).toFixed(2);
   const summary = `今天签到了 ${totalAccounts} 个账号，成功了 ${successfulAccounts} 个账号，失败了 ${failedAccounts} 个账号，今天家庭签到总共获得 ${totalFamilyBonusTodayMB}MB 空间`;
   logger.log(summary);
   return { lastAccountResult, summary };
