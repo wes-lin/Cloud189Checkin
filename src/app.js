@@ -26,10 +26,10 @@ const accounts = require("../accounts");
 
 const mask = (s, start, end) => s.split("").fill("*", start, end).join("");
 
-// 定义全局变量 totalFamilyBonusToday
+// 全局变量，累计每天签到获得的容量和
 var totalFamilyBonusToday = 0;
-
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+// 全局变量，记录签到的次数
+var totalSignCount = 0;
 
 // 任务 1.签到 2.天天抽红包 3.自动备份抽红包
 const doTask = async (cloudClient) => {
@@ -38,14 +38,8 @@ const doTask = async (cloudClient) => {
   result.push(
     `${res1.isSign ? "已经签到过了，" : ""}签到获得${res1.netdiskBonus}M空间`
   );
-  
-  // await delay(5000); // 延迟5秒
-  // const res2 = await cloudClient.taskSign();
-  // buildTaskResult(res2, result);
-
-  // await delay(5000); // 延迟5秒
-  // const res3 = await cloudClient.taskPhoto();
-  // buildTaskResult(res3, result);
+  // 累计签到次数
+  totalSignCount += 1;
 
   return result;
 };
@@ -56,25 +50,20 @@ const doFamilyTask = async (cloudClient) => {
   if (familyInfoResp) {
     for (let index = 0; index < familyInfoResp.length; index += 1) {
       const { familyId } = familyInfoResp[index];
-      try {
-        const res = await cloudClient.familyUserSign(familyId);
-        if (res && res.bonusSpace) {
-          result.push(
-            "家庭任务" +
-              `${res.signStatus ? "已经签到过了，" : ""}签到获得${
-                res.bonusSpace
-              }M空间`
-          );
-          totalFamilyBonusToday += res.bonusSpace; // 累加今天家庭签到获得的容量
-        } else {
-          logger.error(`家庭签到失败，返回数据不正确: ${JSON.stringify(res)}`);
-        }
-      } catch (e) {
-        logger.error(`家庭签到失败，错误信息: ${JSON.stringify(e)}`);
-      }
+      const res = await cloudClient.familyUserSign(108143869061636);
+      result.push(
+        "家庭任务" +
+          `${res.signStatus ? "已经签到过了，" : ""}签到获得${
+            res.bonusSpace
+          }M空间`
+      );
+      // 累计家庭签到获得的容量
+      totalFamilyBonusToday += res.bonusSpace;
+      // 累计签到次数
+      totalSignCount += 1;
     }
   }
-  return { result, totalFamilyBonusToday };
+  return result;
 };
 
 const pushServerChan = (title, desp) => {
@@ -141,7 +130,9 @@ const pushWecomBot = (title, desp) => {
     },
   };
   superagent
-    .post(`https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=${wecomBot.key}`)
+    .post(
+      `https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=${wecomBot.key}`
+    )
     .send(data)
     .end((err, res) => {
       if (err) {
@@ -205,16 +196,22 @@ async function main() {
         await cloudClient.login();
         const result = await doTask(cloudClient);
         result.forEach((r) => logger.log(r));
-        const { result: familyResult } = await doFamilyTask(cloudClient);
+        const familyResult = await doFamilyTask(cloudClient);
         familyResult.forEach((r) => logger.log(r));
         logger.log("任务执行完毕");
         const { cloudCapacityInfo, familyCapacityInfo } =
           await cloudClient.getUserSizeInfo();
         logger.log(
           `个人总容量：${(
-            cloudCapacityInfo.totalSize / 1024 / 1024 / 1024
+            cloudCapacityInfo.totalSize /
+            1024 /
+            1024 /
+            1024
           ).toFixed(2)}G,家庭总容量：${(
-            familyCapacityInfo.totalSize / 1024 / 1024 / 1024
+            familyCapacityInfo.totalSize /
+            1024 /
+            1024 /
+            1024
           ).toFixed(2)}G`
         );
       } catch (e) {
@@ -227,20 +224,17 @@ async function main() {
       }
     }
   }
-  // 将总家庭签到获得的容量转换为MB并保留两位小数
-  const totalFamilyBonusTodayMB = (totalFamilyBonusToday / 1024).toFixed(2);
-  logger.log(`所有账号家庭签到总共获得 ${totalFamilyBonusTodayMB}MB 空间`);
-  return totalFamilyBonusTodayMB;
 }
 
 (async () => {
   try {
-    const totalFamilyBonusTodayMB = await main();
+    await main();
+  } finally {
     const events = recording.replay();
     const content = events.map((e) => `${e.data.join("")}`).join("  \n");
-    push("天翼云盘自动签到任务", `${content}\n所有账号家庭签到总共获得 ${totalFamilyBonusTodayMB}MB 空间`);
+    content += `\n\n今天家庭签到累计获得容量：${totalFamilyBonusToday}M`;
+    content += `\n今天签到次数：${totalSignCount}`;
+    push("天翼云盘自动签到任务", content);
     recording.erase();
-  } catch (error) {
-    logger.error(`任务执行失败: ${error}`);
   }
 })();
