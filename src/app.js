@@ -26,13 +26,33 @@ const accounts = require("../accounts");
 
 const mask = (s, start, end) => s.split("").fill("*", start, end).join("");
 
-// 修改后的任务函数，只包含签到任务
+// const buildTaskResult = (res, result) => {
+//   const index = result.length;
+//   if (res.errorCode === "User_Not_Chance") {
+//     result.push(`第${index}次抽奖失败,次数不足`);
+//   } else {
+//     result.push(`第${index}次抽奖成功,抽奖获得${res.prizeName}`);
+//   }
+// };
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// 任务 1.签到 2.天天抽红包 3.自动备份抽红包
 const doTask = async (cloudClient) => {
   const result = [];
   const res1 = await cloudClient.userSign();
   result.push(
     `${res1.isSign ? "已经签到过了，" : ""}签到获得${res1.netdiskBonus}M空间`
   );
+  
+  // await delay(5000); // 延迟5秒
+  // const res2 = await cloudClient.taskSign();
+  // buildTaskResult(res2, result);
+
+  // await delay(5000); // 延迟5秒
+  // const res3 = await cloudClient.taskPhoto();
+  // buildTaskResult(res3, result);
+
   return result;
 };
 
@@ -42,7 +62,7 @@ const doFamilyTask = async (cloudClient) => {
   let totalFamilyBonusToday = 0; // 用于累加今天家庭签到获得的容量
   if (familyInfoResp) {
     for (let index = 0; index < familyInfoResp.length; index += 1) {
-       const { familyId } = familyInfoResp[index];
+      const { familyId } = familyInfoResp[index];
       const res = await cloudClient.familyUserSign(108143869061636);
       result.push(
         "家庭任务" +
@@ -50,8 +70,7 @@ const doFamilyTask = async (cloudClient) => {
             res.bonusSpace
           }M空间`
       );
-      // 累加今天家庭签到获得的容量
-      totalFamilyBonusToday += res.bonusSpace;
+      totalFamilyBonusToday += res.bonusSpace; // 累加今天家庭签到获得的容量
     }
   }
   return { result, totalFamilyBonusToday };
@@ -172,61 +191,62 @@ const push = (title, desp) => {
   pushWxPusher(title, desp);
 };
 
-// 修改后的主函数，只执行签到任务
+// 开始执行程序
 async function main() {
   let totalFamilyBonusToday = 0; // 用于累加所有账号今天家庭签到获得的容量
-  let totalAccounts = 0; // 用于统计签到的账号总数
-  let successfulAccounts = 0; // 用于统计成功签到的账号数
-  let failedAccounts = 0; // 用于统计失败签到的账号数
-  let lastAccountResult = ""; // 用于存储最后一个账号的签到内容
-
   for (let index = 0; index < accounts.length; index += 1) {
     const account = accounts[index];
     const { userName, password } = account;
     if (userName && password) {
-      totalAccounts += 1; // 累加签到的账号总数
       const userNameInfo = mask(userName, 3, 7);
       try {
         logger.log(`账户 ${userNameInfo}开始执行`);
         const cloudClient = new CloudClient(userName, password);
         await cloudClient.login();
         const result = await doTask(cloudClient);
+        result.forEach((r) => logger.log(r));
         const { result: familyResult, totalFamilyBonusToday: familyBonusToday } = await doFamilyTask(cloudClient);
-        const { cloudCapacityInfo, familyCapacityInfo } = await cloudClient.getUserSizeInfo();
-        const accountResult = [
-          `账户 ${userNameInfo}开始执行`,
-          ...result,
-          ...familyResult,
-          `个人总容量：${(cloudCapacityInfo.totalSize / 1024 / 1024 / 1024).toFixed(2)}G`,
-          `家庭总容量：${(familyCapacityInfo.totalSize / 1024 / 1024 / 1024).toFixed(2)}G`,
-          "任务执行完毕"
-        ].join("\n");
-        if (index === accounts.length - 1) {
-          lastAccountResult = accountResult; // 存储最后一个账号的签到内容
-        }
-        successfulAccounts += 1; // 累加成功签到的账号数
+        familyResult.forEach((r) => logger.log(r));
+        logger.log("任务执行完毕");
+        const { cloudCapacityInfo, familyCapacityInfo } =
+          await cloudClient.getUserSizeInfo();
+        logger.log(
+          `个人总容量：${(
+            cloudCapacityInfo.totalSize /
+            1024 /
+            1024 /
+            1024
+          ).toFixed(2)}G,家庭总容量：${(
+            familyCapacityInfo.totalSize /
+            1024 /
+            1024 /
+            1024
+          ).toFixed(2)}G`
+        );
         totalFamilyBonusToday += familyBonusToday; // 累加今天家庭签到获得的容量
       } catch (e) {
         logger.error(e);
-        failedAccounts += 1; // 累加失败签到的账号数
+        if (e.code === "ETIMEDOUT") {
+          throw e;
+        }
       } finally {
         logger.log(`账户 ${userNameInfo}执行完毕`);
       }
     }
   }
-
   // 将总家庭签到获得的容量转换为MB并保留两位小数
   const totalFamilyBonusTodayMB = (totalFamilyBonusToday / 1024).toFixed(2);
-  const summary = `今天签到了 ${totalAccounts} 个账号，成功了 ${successfulAccounts} 个账号，失败了 ${failedAccounts} 个账号，今天家庭签到总共获得 ${totalFamilyBonusTodayMB}MB 空间`;
-  logger.log(summary);
-  return { lastAccountResult, summary };
+  logger.log(`所有账号家庭签到总共获得 ${totalFamilyBonusTodayMB}MB 空间`);
+  return totalFamilyBonusTodayMB;
 }
 
 (async () => {
   try {
-    const { lastAccountResult, summary } = await main();
-    const content = `${lastAccountResult}\n${summary}`;
-    push("天翼云盘自动签到任务", content);
+    const totalFamilyBonusTodayMB = await main();
+    const events = recording.replay();
+    const content = events.map((e) => `${e.data.join("")}`).join("  \n");
+    push("天翼云盘自动签到任务", `${content}\n所有账号家庭签到总共获得 ${totalFamilyBonusTodayMB}MB 空间`);
+    recording.erase();
   } catch (error) {
     logger.error(`任务执行失败: ${error}`);
   }
