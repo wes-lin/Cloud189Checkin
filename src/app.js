@@ -26,14 +26,8 @@ const accounts = require("../accounts");
 
 const mask = (s, start, end) => s.split("").fill("*", start, end).join("");
 
-// const buildTaskResult = (res, result) => {
-//   const index = result.length;
-//   if (res.errorCode === "User_Not_Chance") {
-//     result.push(`第${index}次抽奖失败,次数不足`);
-//   } else {
-//     result.push(`第${index}次抽奖成功,抽奖获得${res.prizeName}`);
-//   }
-// };
+// 定义全局变量 totalFamilyBonusToday
+var totalFamilyBonusToday = 0;
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -59,18 +53,25 @@ const doTask = async (cloudClient) => {
 const doFamilyTask = async (cloudClient) => {
   const { familyInfoResp } = await cloudClient.getFamilyList();
   const result = [];
-  let totalFamilyBonusToday = 0; // 用于累加今天家庭签到获得的容量
   if (familyInfoResp) {
     for (let index = 0; index < familyInfoResp.length; index += 1) {
       const { familyId } = familyInfoResp[index];
-      const res = await cloudClient.familyUserSign(108143869061636);
-      result.push(
-        "家庭任务" +
-          `${res.signStatus ? "已经签到过了，" : ""}签到获得${
-            res.bonusSpace
-          }M空间`
-      );
-      totalFamilyBonusToday += res.bonusSpace; // 累加今天家庭签到获得的容量
+      try {
+        const res = await cloudClient.familyUserSign(familyId);
+        if (res && res.bonusSpace) {
+          result.push(
+            "家庭任务" +
+              `${res.signStatus ? "已经签到过了，" : ""}签到获得${
+                res.bonusSpace
+              }M空间`
+          );
+          totalFamilyBonusToday += res.bonusSpace; // 累加今天家庭签到获得的容量
+        } else {
+          logger.error(`家庭签到失败，返回数据不正确: ${JSON.stringify(res)}`);
+        }
+      } catch (e) {
+        logger.error(`家庭签到失败，错误信息: ${JSON.stringify(e)}`);
+      }
     }
   }
   return { result, totalFamilyBonusToday };
@@ -193,7 +194,6 @@ const push = (title, desp) => {
 
 // 开始执行程序
 async function main() {
-  let totalFamilyBonusToday = 0; // 用于累加所有账号今天家庭签到获得的容量
   for (let index = 0; index < accounts.length; index += 1) {
     const account = accounts[index];
     const { userName, password } = account;
@@ -205,25 +205,18 @@ async function main() {
         await cloudClient.login();
         const result = await doTask(cloudClient);
         result.forEach((r) => logger.log(r));
-        const { result: familyResult, totalFamilyBonusToday: familyBonusToday } = await doFamilyTask(cloudClient);
+        const { result: familyResult } = await doFamilyTask(cloudClient);
         familyResult.forEach((r) => logger.log(r));
         logger.log("任务执行完毕");
         const { cloudCapacityInfo, familyCapacityInfo } =
           await cloudClient.getUserSizeInfo();
         logger.log(
           `个人总容量：${(
-            cloudCapacityInfo.totalSize /
-            1024 /
-            1024 /
-            1024
+            cloudCapacityInfo.totalSize / 1024 / 1024 / 1024
           ).toFixed(2)}G,家庭总容量：${(
-            familyCapacityInfo.totalSize /
-            1024 /
-            1024 /
-            1024
+            familyCapacityInfo.totalSize / 1024 / 1024 / 1024
           ).toFixed(2)}G`
         );
-        totalFamilyBonusToday += familyBonusToday; // 累加今天家庭签到获得的容量
       } catch (e) {
         logger.error(e);
         if (e.code === "ETIMEDOUT") {
