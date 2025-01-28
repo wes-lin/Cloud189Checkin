@@ -46,18 +46,15 @@ const doFamilyTask = async (cloudClient) => {
   const { familyInfoResp } = await cloudClient.getFamilyList();
   const result = [];
   if (familyInfoResp) {
-    const { familyId } = familyInfoResp[index];
     const res = await cloudClient.familyUserSign(108143869061636);
-    if (res.signStatus !== undefined) {
-      totalFamilyBonusToday += res.bonusSpace;
-      totalSignCount += 1;
-      result.push(
-        "家庭任务" +
-          `${res.signStatus ? "已经签到过了，" : ""}签到获得${
-            res.bonusSpace
-          }M空间`
-      );
-    }
+    totalFamilyBonusToday += res.bonusSpace;
+    totalSignCount += 1;
+    result.push(
+      "家庭任务" +
+        `${res.signStatus ? "已经签到过了，" : ""}签到获得${
+          res.bonusSpace
+        }M空间`
+    );
   }
   return result;
 };
