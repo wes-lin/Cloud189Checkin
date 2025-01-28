@@ -31,9 +31,6 @@ let totalFamilyBonusToday = 0;
 // 累计家庭签到次数
 let totalSignCount = 0;
 
-// 固定家庭ID
-const FIXED_FAMILY_ID = 108143869061636;
-
 // 个人签到
 const doTask = async (cloudClient) => {
   const result = [];
@@ -49,25 +46,17 @@ const doFamilyTask = async (cloudClient) => {
   const { familyInfoResp } = await cloudClient.getFamilyList();
   const result = [];
   if (familyInfoResp) {
-    // 查找固定家庭ID
-    const targetFamily = familyInfoResp.find(
-      (family) => family.familyId === FIXED_FAMILY_ID
-    );
-    if (targetFamily) {
-      const res = await cloudClient.familyUserSign(FIXED_FAMILY_ID);
-      if (res.signStatus === true) {
-        // 仅在签到成功时累加
-        totalFamilyBonusToday += res.bonusSpace;
-        totalSignCount += 1;
-        result.push(`家庭任务签到获得${res.bonusSpace}M空间`);
-      } else if (res.signStatus === false) {
-        // 已签到过
-        result.push("家庭任务已经签到过了");
-      }
-      logger.log(`当前累计容量：${totalFamilyBonusToday}M`);
-      logger.log(`当前累计签到次数：${totalSignCount}`);
-    } else {
-      result.push("未找到指定的家庭ID");
+    const { familyId } = familyInfoResp[index];
+    const res = await cloudClient.familyUserSign(108143869061636);
+    if (res.signStatus !== undefined) {
+      totalFamilyBonusToday += res.bonusSpace;
+      totalSignCount += 1;
+      result.push(
+        "家庭任务" +
+          `${res.signStatus ? "已经签到过了，" : ""}签到获得${
+            res.bonusSpace
+          }M空间`
+      );
     }
   }
   return result;
