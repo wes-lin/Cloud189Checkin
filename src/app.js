@@ -27,9 +27,9 @@ const accounts = require("../accounts");
 const mask = (s, start, end) => s.split("").fill("*", start, end).join("");
 
 // 全局变量，累计每天签到获得的容量和
-var totalFamilyBonusToday = 0;
+let totalFamilyBonusToday = 0;
 // 全局变量，记录签到的次数
-var totalSignCount = 0;
+let totalSignCount = 0;
 
 // 任务 1.签到 2.天天抽红包 3.自动备份抽红包
 const doTask = async (cloudClient) => {
@@ -230,8 +230,7 @@ async function main() {
   try {
     await main();
   } finally {
-    const events = recording.replay();
-    const content = events.map((e) => `${e.data.join("")}`).join("  \n");
+    let content = recording.replay().map((e) => `${e.data.join("")}`).join("  \n");
     content += `\n\n今天家庭签到累计获得容量：${totalFamilyBonusToday}M`;
     content += `\n今天签到次数：${totalSignCount}`;
     push("天翼云盘自动签到任务", content);
