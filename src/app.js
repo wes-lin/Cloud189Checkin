@@ -51,16 +51,16 @@ const doFamilyTask = async (cloudClient) => {
     for (let index = 0; index < familyInfoResp.length; index += 1) {
       const { familyId } = familyInfoResp[index];
       const res = await cloudClient.familyUserSign(108143869061636);
+      // 累计家庭签到获得的容量
+      totalFamilyBonusToday += res.bonusSpace;
+      // 累计签到次数
+      totalSignCount += 1;
       result.push(
         "家庭任务" +
           `${res.signStatus ? "已经签到过了，" : ""}签到获得${
             res.bonusSpace
           }M空间`
       );
-      // 累计家庭签到获得的容量
-      totalFamilyBonusToday += res.bonusSpace;
-      // 累计签到次数
-      totalSignCount += 1;
     }
   }
   return result;
