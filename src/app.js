@@ -26,24 +26,22 @@ const accounts = require("../accounts");
 
 const mask = (s, start, end) => s.split("").fill("*", start, end).join("");
 
-// 全局变量，累计每天签到获得的容量和
+// 累计家庭签到容量和
 let totalFamilyBonusToday = 0;
-// 全局变量，记录签到的次数
+// 累计家庭签到次数
 let totalSignCount = 0;
 
-// 任务 1.签到 2.天天抽红包 3.自动备份抽红包
+// 个人签到
 const doTask = async (cloudClient) => {
   const result = [];
   const res1 = await cloudClient.userSign();
   result.push(
     `${res1.isSign ? "已经签到过了，" : ""}签到获得${res1.netdiskBonus}M空间`
   );
-  // 累计签到次数
-  totalSignCount += 1;
-
   return result;
 };
 
+// 家庭签到
 const doFamilyTask = async (cloudClient) => {
   const { familyInfoResp } = await cloudClient.getFamilyList();
   const result = [];
@@ -51,16 +49,18 @@ const doFamilyTask = async (cloudClient) => {
     for (let index = 0; index < familyInfoResp.length; index += 1) {
       const { familyId } = familyInfoResp[index];
       const res = await cloudClient.familyUserSign(108143869061636);
-      // 累计家庭签到获得的容量
-      totalFamilyBonusToday += res.bonusSpace;
-      // 累计签到次数
-      totalSignCount += 1;
-      result.push(
-        "家庭任务" +
-          `${res.signStatus ? "已经签到过了，" : ""}签到获得${
-            res.bonusSpace
-          }M空间`
-      );
+      if (res.signStatus !== undefined) {
+        totalFamilyBonusToday += res.bonusSpace;
+        totalSignCount += 1;
+        result.push(
+          "家庭任务" +
+            `${res.signStatus ? "已经签到过了，" : ""}签到获得${
+              res.bonusSpace
+            }M空间`
+        );
+        logger.log(`当前累计容量：${totalFamilyBonusToday}M`);
+        logger.log(`当前累计签到次数：${totalSignCount}`);
+      }
     }
   }
   return result;
@@ -232,7 +232,7 @@ async function main() {
   } finally {
     let content = recording.replay().map((e) => `${e.data.join("")}`).join("  \n");
     content += `\n\n今天家庭签到累计获得容量：${totalFamilyBonusToday}M`;
-    content += `\n今天签到次数：${totalSignCount}`;
+    content += `\n今天家庭签到次数：${totalSignCount}`;
     push("天翼云盘自动签到任务", content);
     recording.erase();
   }
