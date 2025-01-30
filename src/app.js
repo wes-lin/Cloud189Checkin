@@ -74,6 +74,32 @@ const doFamilyTask = async (cloudClient) => {
   return result;
 };
 
+const bark = (title, desp) => {
+  if (!bark.barktoken) {
+    return;
+  }
+  const data = {
+    title,
+    desp,
+  };
+  superagent
+    .post(`https://api.day.app/${bark.barktoken}.send`)
+    .type("form")
+    .send(data)
+    .end((err, res) => {
+      if (err) {
+        logger.error(`bark 推送失败:${JSON.stringify(err)}`);
+        return;
+      }
+      const json = JSON.parse(res.text);
+      if (json.code !== 0) {
+        logger.error(`bark 推送失败:${JSON.stringify(json)}`);
+      } else {
+        logger.info("bark 推送成功");
+      }
+    });
+};
+
 const pushServerChan = (title, desp) => {
   if (!serverChan.sendKey) {
     return;
