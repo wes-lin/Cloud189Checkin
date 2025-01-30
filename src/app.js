@@ -80,10 +80,10 @@ const Pushbark = (title, desp) => {
     return;
   }
   const data = {
-    text: `${title}/${desp}`,
+    desp,
   };
   superagent
-    .post(`https://api.day.app/${barkpush.barktoken}/`)
+    .post(`https://api.day.app/${barkpush.barktoken}/${title}/`)
     .type("form")
     .send(data)
     .end((err, res) => {
@@ -95,7 +95,7 @@ const Pushbark = (title, desp) => {
       if (json.code !== 0) {
         logger.error(`bark 推送失败:${JSON.stringify(json)}`);
       } else {
-        logger.info("bark 推送成功");
+        logger.success("bark 推送成功");
       }
     });
 };
