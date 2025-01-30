@@ -75,7 +75,7 @@ const doFamilyTask = async (cloudClient) => {
   return result;
 };
 
-const barkpush = (title, desp) => {
+const Barkpush = (title, desp) => {
   if (!barkpush.barktoken) {
     return;
   }
