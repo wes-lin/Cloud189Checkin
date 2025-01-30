@@ -83,7 +83,7 @@ const Pushbark = (title, desp) => {
     desp,
   };
   superagent
-    .post(`https://api.day.app/${barkpush.barktoken}/${title}/`)
+    .post(`https://api.day.app/${barkpush.barktoken}/`)
     .type("form")
     .send(data)
     .end((err, res) => {
