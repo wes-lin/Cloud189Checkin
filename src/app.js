@@ -80,8 +80,7 @@ const Pushbark = (title, desp) => {
     return;
   }
   const data = {
-    title,
-    /desp,
+    text: `${title}/${desp}`,
   };
   superagent
     .post(`https://api.day.app/${barkpush.barktoken}/`)
