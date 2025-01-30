@@ -18,7 +18,7 @@ const logger = log4js.getLogger();
 // process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
 const superagent = require("superagent");
 const { CloudClient } = require("cloud189-sdk");
-const bark = require("./push/bark");
+const barkpush = require("./push/barkpush");
 const serverChan = require("./push/serverChan");
 const telegramBot = require("./push/telegramBot");
 const wecomBot = require("./push/wecomBot");
@@ -75,8 +75,8 @@ const doFamilyTask = async (cloudClient) => {
   return result;
 };
 
-const bark = (title, desp) => {
-  if (!bark.barktoken) {
+const barkpush = (title, desp) => {
+  if (!barkpush.barktoken) {
     return;
   }
   const data = {
@@ -84,7 +84,7 @@ const bark = (title, desp) => {
     desp,
   };
   superagent
-    .post(`https://api.day.app/${bark.barktoken}/`)
+    .post(`https://api.day.app/${barkpush.barktoken}/`)
     .type("form")
     .send(data)
     .end((err, res) => {
