@@ -84,7 +84,7 @@ const bark = (title, desp) => {
     desp,
   };
   superagent
-    .post(`https://api.day.app/${bark.barktoken}.send`)
+    .post(`https://api.day.app/${bark.barktoken}/`)
     .type("form")
     .send(data)
     .end((err, res) => {
