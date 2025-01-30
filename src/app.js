@@ -75,13 +75,12 @@ const doFamilyTask = async (cloudClient) => {
   return result;
 };
 
-const Barkpush = (title, desp) => {
+const Pushbark = (title, desp) => {
   if (!barkpush.barktoken) {
     return;
   }
   const data = {
-    title,
-    desp,
+    text: `${title}\n\n${desp}`,
   };
   superagent
     .post(`https://api.day.app/${barkpush.barktoken}/`)
@@ -212,6 +211,7 @@ const pushWxPusher = (title, desp) => {
 };
 
 const push = (title, desp) => {
+  Pushbark(title, desp);
   pushServerChan(title, desp);
   pushTelegramBot(title, desp);
   pushWecomBot(title, desp);
