@@ -79,6 +79,9 @@ const Pushbark = (title, desp) => {
   if (!barkpush.barktoken) {
     return;
   }
+  
+  console.log("推送内容 (desp):", desp);
+  
   const data = {
     desp,
   };
