@@ -83,7 +83,8 @@ const Pushbark = (title, desp) => {
   console.log("推送内容 (desp):", desp);
   
   const data = {
-    desp,
+    title,
+    body: desp,
   };
   superagent
     .post(`https://api.day.app/${barkpush.barktoken}/`)
@@ -95,10 +96,10 @@ const Pushbark = (title, desp) => {
         return;
       }
       const json = JSON.parse(res.text);
-      if (json.code !== 0) {
+      if (json.code !== 200) {
         logger.error(`bark 推送失败:${JSON.stringify(json)}`);
       } else {
-        logger.success("bark 推送成功");
+        logger.info("bark 推送成功");
       }
     });
 };
