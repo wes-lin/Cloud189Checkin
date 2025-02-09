@@ -1,6 +1,6 @@
 # Cloud189Checkin
 
-天翼网盘自动签到（随机容量) 和抽奖（两次，每次 50M，共 150M）获取空间，家庭空间签到（随机容量）。
+天翼网盘自动签到（随机容量），家庭空间签到（随机容量）。
 
 # 重要说明！！！
 
@@ -21,9 +21,9 @@
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/fork.png)
 
 ### 设置工作流权限
-将Settings -> Actions -> Workflow permissions 改成 Read and write permissions
-![image](https://github.com/user-attachments/assets/28d27a78-73f2-489e-aa7e-cac87c0fc509)
 
+将 Settings -> Actions -> Workflow permissions 改成 Read and write permissions
+![image](https://github.com/user-attachments/assets/28d27a78-73f2-489e-aa7e-cac87c0fc509)
 
 ### 设置账号密码
 
@@ -34,7 +34,6 @@
 
 如果你遇到你账号密码中有特殊字符如#$等无法解析的[SyntaxError](https://github.com/wes-lin/Cloud189Checkin/issues/76),请在你的配置中将TY_ACCOUNTS用单引号包起来
 例如'[{"userName":"1234567890","password":"123334#$#$"}]'
-
 
 ### 设置推送
 
@@ -68,7 +67,7 @@
 1. 点击**Action**，再点击**I understand my workflows, go ahead and enable them**
 2. 给自己仓库点个 start 或者修改任意文件后提交一次或者手动点击运行
    ![](http://tu.yaohuo.me/imgs/2020/06/34ca160c972b9927.png)
-3. 每天早上 10 点执行任务
+3. 每天早上 10:35 点执行任务
 
 ### 查看运行结果
 
