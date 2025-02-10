@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron: 35 10 * * *
-  timezone: Asia/Shanghai
+    - timezone: Asia/Shanghai
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
