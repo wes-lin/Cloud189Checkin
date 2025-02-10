@@ -213,10 +213,10 @@ async function main() {
           cloudClient,
           userSizeInfo: beforeUserSizeInfo,
         });
-        // const result = await doUserTask(cloudClient);
-        // result.forEach((r) => logger.log(r));
-        // const familyResult = await doFamilyTask(cloudClient);
-        // familyResult.forEach((r) => logger.log(r));
+        const result = await doUserTask(cloudClient);
+        result.forEach((r) => logger.log(r));
+        const familyResult = await doFamilyTask(cloudClient);
+        familyResult.forEach((r) => logger.log(r));
       } catch (e) {
         logger.error(e);
         if (e.code === "ETIMEDOUT") {
@@ -233,9 +233,6 @@ async function main() {
     const userNameInfo = mask(userName, 3, 7);
     const afterUserSizeInfo = await cloudClient.getUserSizeInfo();
     logger.log(`账户 ${userNameInfo}实际容量变化:`);
-    logger.log(userSizeInfo);
-    logger.log(afterUserSizeInfo);
-    logger.log(cloudClient.username);
     logger.log(
       `个人总容量增加：${(
         (afterUserSizeInfo.cloudCapacityInfo.totalSize -
