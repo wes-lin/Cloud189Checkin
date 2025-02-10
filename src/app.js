@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 require("dotenv").config();
 const log4js = require("log4js");
 const recording = require("log4js/lib/appenders/recording");
@@ -15,7 +14,6 @@ log4js.configure({
 });
 
 const logger = log4js.getLogger();
-// process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
 const superagent = require("superagent");
 const { CloudClient } = require("cloud189-sdk");
 const serverChan = require("./push/serverChan");
@@ -23,55 +21,61 @@ const telegramBot = require("./push/telegramBot");
 const wecomBot = require("./push/wecomBot");
 const wxpush = require("./push/wxPusher");
 const accounts = require("../accounts");
+const families = require("../families");
+const execThreshold = process.env.EXEC_THRESHOLD || 1;
 
 const mask = (s, start, end) => s.split("").fill("*", start, end).join("");
 
-const buildTaskResult = (res, result) => {
-  const index = result.length;
-  if (res.errorCode === "User_Not_Chance") {
-    result.push(`第${index}次抽奖失败,次数不足`);
-  } else {
-    result.push(`第${index}次抽奖成功,抽奖获得${res.prizeName}`);
-  }
-};
-
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// 任务 1.签到 2.天天抽红包 3.自动备份抽红包
-const doTask = async (cloudClient) => {
-  const result = [];
-  const res1 = await cloudClient.userSign();
-  result.push(
-    `${res1.isSign ? "已经签到过了，" : ""}签到获得${res1.netdiskBonus}M空间`
+// 任务 1.签到
+const doUserTask = async (cloudClient) => {
+  const tasks = Array.from({ length: execThreshold }, () =>
+    cloudClient.userSign()
   );
-  await delay(5000); // 延迟5秒
-
-  const res2 = await cloudClient.taskSign();
-  buildTaskResult(res2, result);
-
-  await delay(5000); // 延迟5秒
-  const res3 = await cloudClient.taskPhoto();
-  buildTaskResult(res3, result);
-
+  const result = (await Promise.all(tasks)).map(
+    (res) =>
+      `个人任务${res.isSign ? "已经签到过了，" : ""}签到获得${
+        res.netdiskBonus
+      }M空间`
+  );
   return result;
 };
 
 const doFamilyTask = async (cloudClient) => {
   const { familyInfoResp } = await cloudClient.getFamilyList();
-  const result = [];
   if (familyInfoResp) {
-    for (let index = 0; index < familyInfoResp.length; index += 1) {
-      const { familyId } = familyInfoResp[index];
-      const res = await cloudClient.familyUserSign(familyId);
-      result.push(
-        "家庭任务" +
-          `${res.signStatus ? "已经签到过了，" : ""}签到获得${
-            res.bonusSpace
-          }M空间`
+    let familyId = null;
+    //指定家庭签到
+    if (families.length > 0) {
+      const tagetFamily = familyInfoResp.find((familyInfo) =>
+        families.includes(familyInfo.remarkName)
       );
+      if (tagetFamily) {
+        familyId = tagetFamily.familyId;
+      } else {
+        return [
+          `没有加入到指定家庭分组${families
+            .map((family) => mask(family, 3, 7))
+            .toString()}`,
+        ];
+      }
+    } else {
+      familyId = familyInfoResp[0].familyId;
     }
+    logger.info(`执行家庭签到ID:${familyId}`);
+    const tasks = Array.from({ length: execThreshold }, () =>
+      cloudClient.familyUserSign(familyId)
+    );
+    const result = (await Promise.all(tasks)).map(
+      (res) =>
+        `家庭任务${res.signStatus ? "已经签到过了，" : ""}签到获得${
+          res.bonusSpace
+        }M空间`
+    );
+    return result;
   }
-  return result;
+  return [];
 };
 
 const pushServerChan = (title, desp) => {
@@ -193,6 +197,8 @@ const push = (title, desp) => {
 
 // 开始执行程序
 async function main() {
+  //用于统计实际容量变化
+  const userSizeInfoMap = new Map();
   for (let index = 0; index < accounts.length; index += 1) {
     const account = accounts[index];
     const { userName, password } = account;
@@ -202,26 +208,15 @@ async function main() {
         logger.log(`账户 ${userNameInfo}开始执行`);
         const cloudClient = new CloudClient(userName, password);
         await cloudClient.login();
-        const result = await doTask(cloudClient);
+        const beforeUserSizeInfo = await cloudClient.getUserSizeInfo();
+        userSizeInfoMap.set(userName, {
+          cloudClient,
+          userSizeInfo: beforeUserSizeInfo,
+        });
+        const result = await doUserTask(cloudClient);
         result.forEach((r) => logger.log(r));
         const familyResult = await doFamilyTask(cloudClient);
         familyResult.forEach((r) => logger.log(r));
-        logger.log("任务执行完毕");
-        const { cloudCapacityInfo, familyCapacityInfo } =
-          await cloudClient.getUserSizeInfo();
-        logger.log(
-          `个人总容量：${(
-            cloudCapacityInfo.totalSize /
-            1024 /
-            1024 /
-            1024
-          ).toFixed(2)}G,家庭总容量：${(
-            familyCapacityInfo.totalSize /
-            1024 /
-            1024 /
-            1024
-          ).toFixed(2)}G`
-        );
       } catch (e) {
         logger.error(e);
         if (e.code === "ETIMEDOUT") {
@@ -231,6 +226,26 @@ async function main() {
         logger.log(`账户 ${userNameInfo}执行完毕`);
       }
     }
+  }
+
+  //数据汇总
+  for (const [userName, { cloudClient, userSizeInfo }] of userSizeInfoMap) {
+    const userNameInfo = mask(userName, 3, 7);
+    const afterUserSizeInfo = await cloudClient.getUserSizeInfo();
+    logger.log(`账户 ${userNameInfo}实际容量变化:`);
+    logger.log(
+      `个人总容量增加：${(
+        (afterUserSizeInfo.cloudCapacityInfo.totalSize -
+          userSizeInfo.cloudCapacityInfo.totalSize) /
+        1024 /
+        1024
+      ).toFixed(2)}M,家庭容量增加：${(
+        (afterUserSizeInfo.familyCapacityInfo.totalSize -
+          userSizeInfo.familyCapacityInfo.totalSize) /
+        1024 /
+        1024
+      ).toFixed(2)}M`
+    );
   }
 }
 

@@ -1,6 +1,6 @@
 # Cloud189Checkin
 
-天翼网盘自动签到（随机容量) 和抽奖（两次，每次 50M，共 150M）获取空间，家庭空间签到（随机容量）。
+天翼网盘自动签到（随机容量），家庭空间签到（随机容量）。
 
 # 重要说明！！！
 
@@ -21,9 +21,9 @@
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/fork.png)
 
 ### 设置工作流权限
-将Settings -> Actions -> Workflow permissions 改成 Read and write permissions
-![image](https://github.com/user-attachments/assets/28d27a78-73f2-489e-aa7e-cac87c0fc509)
 
+将 Settings -> Actions -> Workflow permissions 改成 Read and write permissions
+![image](https://github.com/user-attachments/assets/28d27a78-73f2-489e-aa7e-cac87c0fc509)
 
 ### 设置账号密码
 
@@ -34,6 +34,18 @@
 
 如果你遇到你账号密码中有特殊字符如#$等无法解析的[SyntaxError](https://github.com/wes-lin/Cloud189Checkin/issues/76),请在你的配置中将TY_ACCOUNTS用单引号包起来
 例如'[{"userName":"1234567890","password":"123334#$#$"}]'
+
+### 设置签到并发值
+
+目前发现电信的签到, 在同时发送请求时, 能同时获取到奖励,这bug在个人和家庭的签到任务同样有生效. 但是这是具有一定风险性, 并且获取到奖励是不固定的,请谨慎使用.如果因为使用该脚本出现账号异常,本人概不负责. 设置环境变量 EXEC_THRESHOLD 默认是不开启, 默认签到执行一次,如设置建议并发数为5.
+- `EXEC_THRESHOLD` 同时签到的最大进程数
+
+### 设置家庭签到
+
+目前电信的家庭签到可以将子账号的签到奖励叠加到主账号上,首先你需要把子账号都加入到你的主账号家庭组中,然后配置该环境变量.
+- `TY_FAMILIES` 需要签到的主账号家庭名称,可以添加多个主账号如["18xxxxx","17xxxx"]
+例如目前我的家庭组是18xxxxx,目前有三个账号,那么这个三个账号签到奖励都会汇集到主账号上, TY_FAMILIES 需要配置成["189xxxxx"],注意是你的家庭组的全名,我这里这是一个例子,因为客户端会将你名称打星号处理了,所以你要点app上的编辑家庭名称,来获取完整名称然后填到该变量上.
+![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/families.jpg)
 
 
 ### 设置推送
@@ -68,7 +80,7 @@
 1. 点击**Action**，再点击**I understand my workflows, go ahead and enable them**
 2. 给自己仓库点个 start 或者修改任意文件后提交一次或者手动点击运行
    ![](http://tu.yaohuo.me/imgs/2020/06/34ca160c972b9927.png)
-3. 每天早上 10 点执行任务
+3. 每天早上 10:35 点执行任务
 
 ### 查看运行结果
 
