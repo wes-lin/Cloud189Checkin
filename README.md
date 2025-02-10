@@ -45,7 +45,7 @@
 目前电信的家庭签到可以将子账号的签到奖励叠加到主账号上,首先你需要把子账号都加入到你的主账号家庭组中,然后配置该环境变量.
 - `TY_FAMILIES` 需要签到的主账号家庭名称,可以添加多个主账号如["18xxxxx","17xxxx"]
 例如目前我的家庭组是18xxxxx,目前有三个账号,那么这个三个账号签到奖励都会汇集到主账号上, TY_FAMILIES 需要配置成["189xxxxx"],注意是你的家庭组的全名,我这里这是一个例子,因为客户端会将你名称打星号处理了,所以你要点app上的编辑家庭名称,来获取完整名称然后填到该变量上.
-![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/families.png)
+![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/families.jpg)
 
 
 ### 设置推送
