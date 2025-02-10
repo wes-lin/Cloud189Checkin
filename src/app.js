@@ -22,6 +22,7 @@ const wecomBot = require("./push/wecomBot");
 const wxpush = require("./push/wxPusher");
 const accounts = require("../accounts");
 const families = require("../families");
+const execThreshold = process.env.EXEC_THRESHOLD || 1
 
 const mask = (s, start, end) => s.split("").fill("*", start, end).join("");
 
@@ -29,7 +30,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // 任务 1.签到
 const doUserTask = async (cloudClient) => {
-  const tasks = Array.from({ length: 5 }, () => cloudClient.userSign());
+  const tasks = Array.from({ length: execThreshold }, () => cloudClient.userSign());
   const result = (await Promise.all(tasks)).map(
     (res) =>
       `个人任务${res.isSign ? "已经签到过了，" : ""}签到获得${
@@ -61,7 +62,7 @@ const doFamilyTask = async (cloudClient) => {
       familyId = familyInfoResp[0].familyId;
     }
     logger.info(`执行家庭签到ID:${familyId}`);
-    const tasks = Array.from({ length: 5 }, () =>
+    const tasks = Array.from({ length: execThreshold }, () =>
       cloudClient.familyUserSign(familyId)
     );
     const result = (await Promise.all(tasks)).map(
@@ -194,6 +195,8 @@ const push = (title, desp) => {
 
 // 开始执行程序
 async function main() {
+  //用于统计实际容量变化
+  const userSizeInfoMap = new Map()
   for (let index = 0; index < accounts.length; index += 1) {
     const account = accounts[index];
     const { userName, password } = account;
@@ -204,24 +207,14 @@ async function main() {
         const cloudClient = new CloudClient(userName, password);
         await cloudClient.login();
         const beforeUserSizeInfo = await cloudClient.getUserSizeInfo();
+        userSizeInfoMap.set(userName, {
+          cloudClient,
+          userSizeInfo: beforeUserSizeInfo
+        })
         const result = await doUserTask(cloudClient);
         result.forEach((r) => logger.log(r));
         const familyResult = await doFamilyTask(cloudClient);
         familyResult.forEach((r) => logger.log(r));
-        const afterUserSizeInfo = await cloudClient.getUserSizeInfo();
-        logger.log(
-          `个人总容量增加：${(
-            (afterUserSizeInfo.cloudCapacityInfo.totalSize -
-              beforeUserSizeInfo.cloudCapacityInfo.totalSize) /
-            1024 /
-            1024
-          ).toFixed(2)}M,家庭容量增加：${(
-            (afterUserSizeInfo.familyCapacityInfo.totalSize -
-              beforeUserSizeInfo.familyCapacityInfo.totalSize) /
-            1024 /
-            1024
-          ).toFixed(2)}M`
-        );
       } catch (e) {
         logger.error(e);
         if (e.code === "ETIMEDOUT") {
@@ -232,6 +225,27 @@ async function main() {
       }
     }
   }
+
+  //数据汇总
+  for (const [userName, { cloudClient, userSizeInfo }] of userSizeInfoMap) {
+    const userNameInfo = mask(userName, 3, 7);
+    const afterUserSizeInfo = await cloudClient.getUserSizeInfo();
+    logger.log(`账户 ${userNameInfo}实际容量变化:`)
+    logger.log(
+      `个人总容量增加：${(
+        (afterUserSizeInfo.cloudCapacityInfo.totalSize -
+          userSizeInfo.cloudCapacityInfo.totalSize) /
+        1024 /
+        1024
+      ).toFixed(2)}M,家庭容量增加：${(
+        (afterUserSizeInfo.familyCapacityInfo.totalSize -
+          userSizeInfo.familyCapacityInfo.totalSize) /
+        1024 /
+        1024
+      ).toFixed(2)}M`
+    );
+  }
+
 }
 
 (async () => {
