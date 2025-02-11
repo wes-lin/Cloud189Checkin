@@ -22,7 +22,7 @@ const wecomBot = require("./push/wecomBot");
 const wxpush = require("./push/wxPusher");
 const accounts = require("../accounts");
 const families = require("../families");
-const execThreshold = process.env.EXEC_THRESHOLD || 1;
+const execThreshold = process.env.EXEC_THRESHOLD || 5;
 
 const mask = (s, start, end) => s.split("").fill("*", start, end).join("");
 
