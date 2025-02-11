@@ -52,13 +52,13 @@ const doFamilyTask = async (cloudClient) => {
   const { familyInfoResp } = await cloudClient.getFamilyList();
   if (familyInfoResp) {
     let familyId = null;
-    //指定家庭签到
+    // 指定家庭签到
     if (families.length > 0) {
-      const tagetFamily = familyInfoResp.find((familyInfo) =>
+      const targetFamily = familyInfoResp.find((familyInfo) =>
         families.includes(familyInfo.remarkName)
       );
-      if (tagetFamily) {
-        familyId = tagetFamily.familyId;
+      if (targetFamily) {
+        familyId = targetFamily.familyId;
       } else {
         return [
           `没有加入到指定家庭分组${families
@@ -73,12 +73,17 @@ const doFamilyTask = async (cloudClient) => {
     const tasks = Array.from({ length: execThreshold }, () =>
       cloudClient.familyUserSign(familyId)
     );
-    totalFamilyBonusToday += res.bonusSpace;
-    totalSignCount += 1;
-    const result = (await Promise.all(tasks)).map(
+    const results = await Promise.all(tasks);
+    results.forEach((res) => {
+      if (res && !res.signStatus) { // 只有成功签到时才累加
+        totalFamilyBonusToday += res.bonusSpace || 0;
+        totalSignCount += 1;
+      }
+    });
+    const result = results.map(
       (res) =>
         `家庭任务${res.signStatus ? "已经签到过了，" : ""}签到获得${
-          res.bonusSpace
+          res.bonusSpace || 0
         }M空间`
     );
     return result;
@@ -283,9 +288,13 @@ async function main() {
 (async () => {
   try {
     const summaryLogs = await main();
-    content += `\n\n今天家庭签到累计获得容量：${totalFamilyBonusToday}M`;
-    content += `\n今天家庭签到次数：${totalSignCount}`;
-    push("天翼云盘自动签到任务", summaryLogs);
+    const content = `
+天翼云盘自动签到任务完成！
+${summaryLogs}
+今天家庭签到累计获得容量：${totalFamilyBonusToday}M
+今天家庭签到次数：${totalSignCount}
+`;
+    push("天翼云盘自动签到任务", content);
   } catch (error) {
     logger.error(`主程序执行失败: ${error.message}`);
   } finally {
