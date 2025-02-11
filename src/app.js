@@ -28,7 +28,12 @@ const mask = (s, start, end) => s.split("").fill("*", start, end).join("");
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// 任务 1.签到
+// 累计家庭签到容量和
+let totalFamilyBonusToday = 0;
+// 累计家庭签到次数
+let totalSignCount = 0;
+
+// 个人签到
 const doUserTask = async (cloudClient) => {
   const tasks = Array.from({ length: execThreshold }, () =>
     cloudClient.userSign()
@@ -42,6 +47,7 @@ const doUserTask = async (cloudClient) => {
   return result;
 };
 
+// 家庭签到
 const doFamilyTask = async (cloudClient) => {
   const { familyInfoResp } = await cloudClient.getFamilyList();
   if (familyInfoResp) {
@@ -67,6 +73,8 @@ const doFamilyTask = async (cloudClient) => {
     const tasks = Array.from({ length: execThreshold }, () =>
       cloudClient.familyUserSign(familyId)
     );
+    totalFamilyBonusToday += res.bonusSpace;
+    totalSignCount += 1;
     const result = (await Promise.all(tasks)).map(
       (res) =>
         `家庭任务${res.signStatus ? "已经签到过了，" : ""}签到获得${
@@ -197,8 +205,11 @@ const push = (title, desp) => {
 
 // 开始执行程序
 async function main() {
-  //用于统计实际容量变化
+  // 用于统计实际容量变化
   const userSizeInfoMap = new Map();
+  // 用于存储数据汇总部分的日志内容
+  const summaryLogs = [];
+
   for (let index = 0; index < accounts.length; index += 1) {
     const account = accounts[index];
     const { userName, password } = account;
@@ -228,34 +239,56 @@ async function main() {
     }
   }
 
-  //数据汇总
+  // 数据汇总
   for (const [userName, { cloudClient, userSizeInfo }] of userSizeInfoMap) {
     const userNameInfo = mask(userName, 3, 7);
     const afterUserSizeInfo = await cloudClient.getUserSizeInfo();
-    logger.log(`账户 ${userNameInfo}实际容量变化:`);
-    logger.log(
-      `个人总容量增加：${(
-        (afterUserSizeInfo.cloudCapacityInfo.totalSize -
-          userSizeInfo.cloudCapacityInfo.totalSize) /
-        1024 /
-        1024
-      ).toFixed(2)}M,家庭容量增加：${(
-        (afterUserSizeInfo.familyCapacityInfo.totalSize -
-          userSizeInfo.familyCapacityInfo.totalSize) /
-        1024 /
-        1024
-      ).toFixed(2)}M`
-    );
+    const capacityChangePersonal = (
+      (afterUserSizeInfo.cloudCapacityInfo.totalSize -
+        userSizeInfo.cloudCapacityInfo.totalSize) /
+      1024 /
+      1024
+    ).toFixed(2);
+    const capacityChangeFamily = (
+      (afterUserSizeInfo.familyCapacityInfo.totalSize -
+        userSizeInfo.familyCapacityInfo.totalSize) /
+      1024 /
+      1024
+    ).toFixed(2);
+
+    // 再次获取签到后的个人总容量和家庭总容量
+    const finalUserSizeInfo = await cloudClient.getUserSizeInfo();
+    const finalPersonalCapacity = (
+      finalUserSizeInfo.cloudCapacityInfo.totalSize / 1024 / 1024 / 1024
+    ).toFixed(2);
+    const finalFamilyCapacity = (
+      finalUserSizeInfo.familyCapacityInfo.totalSize / 1024 / 1024 / 1024
+    ).toFixed(2);
+
+    // 构造数据汇总的日志内容
+    const summaryLog = `
+账户 ${userNameInfo} 今日签到：
+个人增加：${capacityChangePersonal}M,家庭增加：${capacityChangeFamily}M
+个人总量: ${finalPersonalCapacity}G,家庭总量: ${finalFamilyCapacity}G
+    `;
+    // 将日志内容添加到数组中
+    summaryLogs.push(summaryLog);
   }
+
+  // 返回数据汇总部分的日志内容
+  return summaryLogs.join("\n");
 }
 
+// 程序入口
 (async () => {
   try {
-    await main();
+    const summaryLogs = await main();
+    content += `\n\n今天家庭签到累计获得容量：${totalFamilyBonusToday}M`;
+    content += `\n今天家庭签到次数：${totalSignCount}`;
+    push("天翼云盘自动签到任务", summaryLogs);
+  } catch (error) {
+    logger.error(`主程序执行失败: ${error.message}`);
   } finally {
-    const events = recording.replay();
-    const content = events.map((e) => `${e.data.join("")}`).join("  \n");
-    push("天翼云盘自动签到任务", content);
     recording.erase();
   }
 })();
