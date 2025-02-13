@@ -75,6 +75,13 @@
   然后拿到 UID 后,把 WX_PUSHER_UID 配成你拿到的 UID.
   ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/wxpusher.jpg)
 
+#### pushPlus 推送
+
+- `PUSH_PLUS_TOKEN ` _pushPlus 推送 token_
+- 注册和获取 token：https://www.pushplus.plus/uc.html
+- 拿到 token 后，把 PUSH_PLUS_TOKEN 配成你拿到的 token.
+- 免费用户每天有 200 条推送额度
+
 ### 执行任务
 
 1. 点击**Action**，再点击**I understand my workflows, go ahead and enable them**
