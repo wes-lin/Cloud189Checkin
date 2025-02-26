@@ -254,9 +254,10 @@ async function main() {
         // const familyResult = await doFamilyTask(cloudClient);
         // familyResult.forEach((r) => logger.log(r));
       } catch (e) {
-        logger.error(e);
         if(e.response) {
           logger.error(`请求失败: ${e.response.statusCode}, ${e.response.body}`);
+        } else {
+          logger.error(e);
         }
         if (e.code === "ETIMEDOUT") {
           throw e;
