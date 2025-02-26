@@ -215,6 +215,7 @@ const loadCookies = (userName) => {
     const cookies = JSON.parse(fs.readFileSync(`${cookieDir}/${userName}.json`, { encoding:'utf8' }))
     const cookieJar = new CookieJar()
     cookies.forEach(cookie => {
+      console.log(cookie)
       cookieJar.setCookieSync(Cookie.parse(cookie), "https://cloud.189.cn")
     });
     return cookieJar
