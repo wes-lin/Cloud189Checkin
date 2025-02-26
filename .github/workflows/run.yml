@@ -18,6 +18,14 @@ jobs:
         uses: actions/setup-node@main
         with:
           node-version: 18
+
+      - name: Restore cached Cookie
+        id: cache-cookie-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: .cookie
+          key: ${{ runner.os }}-cookie
+
       - name: init secrets
         uses: shine1594/secrets-to-env-action@master
         with:
@@ -25,8 +33,10 @@ jobs:
           secrets_env: production
           prefix_prod: ""
           file_name_prod: .env
+
       - name: init
         run: npm install
+
       - name: run
         id: run
         uses: nick-fields/retry@master
@@ -34,7 +44,17 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: npm start
+      
+      - name: Save cookie
+        id: cache-primes-save
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            .cookie
+          key: ${{ steps.cache-cookie-restore.outputs.cache-primary-key }}
+
       - name: Keep Running
+        if: github.event_name == 'schedule'
         run: |
           git config --local user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
           git config --local user.name "${{ github.actor }}"
@@ -42,6 +62,7 @@ jobs:
           git pull --rebase --autostash
           git commit --allow-empty -m "Keep Running..."
           git push
+
       - name: Delete old workflow run
         uses: Mattraks/delete-workflow-runs@main
         with:

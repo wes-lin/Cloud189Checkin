@@ -1,6 +1,8 @@
 require("dotenv").config();
 const log4js = require("log4js");
 const recording = require("log4js/lib/appenders/recording");
+const fs = require('fs')
+const { Cookie, CookieJar } = require("tough-cookie")
 log4js.configure({
   appenders: {
     vcr: {
@@ -33,13 +35,10 @@ const doUserTask = async (cloudClient) => {
   const tasks = Array.from({ length: execThreshold }, () =>
     cloudClient.userSign()
   );
-  const result = (await Promise.all(tasks)).map(
-    (res) =>
-      `个人任务${res.isSign ? "已经签到过了，" : ""}签到获得${
-        res.netdiskBonus
-      }M空间`
+  const result = (await Promise.all(tasks)).filter(
+    (res) => !res.isSign
   );
-  return result;
+  return [`个人签到任务: 成功数/总请求数 ${result.length}/${tasks.length} 获得 ${result.map(res => res.netdiskBonus)?.join(",") || "0" }M 空间`];
 };
 
 const doFamilyTask = async (cloudClient) => {
@@ -67,13 +66,10 @@ const doFamilyTask = async (cloudClient) => {
     const tasks = Array.from({ length: execThreshold }, () =>
       cloudClient.familyUserSign(familyId)
     );
-    const result = (await Promise.all(tasks)).map(
-      (res) =>
-        `家庭任务${res.signStatus ? "已经签到过了，" : ""}签到获得${
-          res.bonusSpace
-        }M空间`
+    const result = (await Promise.all(tasks)).filter(
+      (res) => !res.signStatus
     );
-    return result;
+    return [`家庭签到任务: 成功数/总请求数 ${result.length}/${tasks.length} 获得 ${result.map(res => res.bonusSpace)?.join(",") || "0" }M 空间`];
   }
   return [];
 };
@@ -195,6 +191,37 @@ const push = (title, desp) => {
   pushWxPusher(title, desp);
 };
 
+const formatDateISO = (date) => {
+  const isoString = date.toISOString();
+  const formattedDate = isoString.split("T")[0];
+  return formattedDate;
+};
+
+
+const cookieDir = `.cookie/${formatDateISO(new Date())}`
+
+const saveCookies = (userName, cookieJar) => {
+  if(!fs.existsSync(cookieDir)) {
+    fs.mkdirSync(cookieDir, { recursive:true })
+  }
+  const cookies = cookieJar.getCookiesSync("https://cloud.189.cn").map(cookie => cookie.toString())
+  fs.writeFileSync(`${cookieDir}/${userName}.json`, JSON.stringify(cookies), {
+    encoding: 'utf-8'
+  })
+}
+
+const loadCookies = (userName) => {
+  if(fs.existsSync(`${cookieDir}/${userName}.json`)) {
+    const cookies = JSON.parse(fs.readFileSync(`${cookieDir}/${userName}.json`, { encoding:'utf8' }))
+    const cookieJar = new CookieJar()
+    cookies.forEach(cookie => {
+      cookieJar.setCookieSync(Cookie.parse(cookie), "https://cloud.189.cn")
+    });
+    return cookieJar
+  }
+  return null
+}
+
 // 开始执行程序
 async function main() {
   //用于统计实际容量变化
@@ -207,16 +234,24 @@ async function main() {
       try {
         logger.log(`账户 ${userNameInfo}开始执行`);
         const cloudClient = new CloudClient(userName, password);
-        await cloudClient.login();
+        const cookies = loadCookies(userName)
+        if(cookies) {
+          cloudClient.cookieJar = cookies
+        } else {
+          console.log('未发现cookie, 手动进行登录')
+          await cloudClient.login();
+          saveCookies(userName, cloudClient.cookieJar)
+        }
         const beforeUserSizeInfo = await cloudClient.getUserSizeInfo();
-        userSizeInfoMap.set(userName, {
-          cloudClient,
-          userSizeInfo: beforeUserSizeInfo,
-        });
-        const result = await doUserTask(cloudClient);
-        result.forEach((r) => logger.log(r));
-        const familyResult = await doFamilyTask(cloudClient);
-        familyResult.forEach((r) => logger.log(r));
+        console.log(beforeUserSizeInfo)
+        // userSizeInfoMap.set(userName, {
+        //   cloudClient,
+        //   userSizeInfo: beforeUserSizeInfo,
+        // });
+        // const result = await doUserTask(cloudClient);
+        // result.forEach((r) => logger.log(r));
+        // const familyResult = await doFamilyTask(cloudClient);
+        // familyResult.forEach((r) => logger.log(r));
       } catch (e) {
         logger.error(e);
         if (e.code === "ETIMEDOUT") {
