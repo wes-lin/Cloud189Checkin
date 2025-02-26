@@ -24,6 +24,7 @@ const wecomBot = require("./push/wecomBot");
 const wxpush = require("./push/wxPusher");
 const accounts = require("../accounts");
 const families = require("../families");
+const { env } = require("process");
 const execThreshold = process.env.EXEC_THRESHOLD || 1;
 
 const mask = (s, start, end) => s.split("").fill("*", start, end).join("");
@@ -93,7 +94,7 @@ const pushServerChan = (title, desp) => {
       }
       const json = JSON.parse(res.text);
       if (json.code !== 0) {
-        logger.error(`ServerChan推送失败:${JSON.stringify(json)}`);
+        logger.error(`ServerChan推送失败:${json.info}`);
       } else {
         logger.info("ServerChan推送成功");
       }
@@ -215,7 +216,6 @@ const loadCookies = (userName) => {
     const cookies = JSON.parse(fs.readFileSync(`${cookieDir}/${userName}.json`, { encoding:'utf8' }))
     const cookieJar = new CookieJar()
     cookies.forEach(cookie => {
-      console.log(cookie)
       cookieJar.setCookieSync(Cookie.parse(cookie), "https://cloud.189.cn")
     });
     return cookieJar
@@ -235,13 +235,18 @@ async function main() {
       try {
         logger.log(`账户 ${userNameInfo}开始执行`);
         const cloudClient = new CloudClient(userName, password);
-        const cookies = loadCookies(userName)
-        if(cookies) {
-          cloudClient.cookieJar = cookies
-        } else {
-          console.log('未发现cookie, 手动进行登录')
+        // github action环境 ip不固定, 存cookie无效
+        if(process.env.GITHUB_ACTIONS) {
           await cloudClient.login();
-          saveCookies(userName, cloudClient.cookieJar)
+        } else {
+          const cookies = loadCookies(userName)
+          if(cookies) {
+            cloudClient.cookieJar = cookies
+          } else {
+            console.log('未发现cookie, 手动进行登录')
+            await cloudClient.login();
+            saveCookies(userName, cloudClient.cookieJar)
+          }
         }
         const beforeUserSizeInfo = await cloudClient.getUserSizeInfo();
         console.log(beforeUserSizeInfo)
