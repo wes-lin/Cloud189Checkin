@@ -1,45 +1,34 @@
 require("dotenv").config();
-const log4js = require("log4js");
-const recording = require("log4js/lib/appenders/recording");
-const fs = require('fs')
-const { Cookie, CookieJar } = require("tough-cookie")
-log4js.configure({
-  appenders: {
-    vcr: {
-      type: "recording",
-    },
-    out: {
-      type: "console",
-    },
-  },
-  categories: { default: { appenders: ["vcr", "out"], level: "info" } },
-});
-
-const logger = log4js.getLogger();
-const superagent = require("superagent");
+const fs = require("fs");
+const { Cookie, CookieJar } = require("tough-cookie");
 const { CloudClient } = require("cloud189-sdk");
-const serverChan = require("./push/serverChan");
-const telegramBot = require("./push/telegramBot");
-const wecomBot = require("./push/wecomBot");
-const wxpush = require("./push/wxPusher");
+const logger = require("./logger");
+const recording = require("log4js/lib/appenders/recording");
 const accounts = require("../accounts");
 const families = require("../families");
-const { env } = require("process");
+const {
+  mask,
+  formatDateISO,
+  getIpAddr,
+  deleteNonTargetDirectories,
+} = require("./utils");
+const push = require("./push");
 const execThreshold = process.env.EXEC_THRESHOLD || 1;
-
-const mask = (s, start, end) => s.split("").fill("*", start, end).join("");
-
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+//github action ip不固定，缓存cookie无效
+const cacheCookie =
+  !process.env.GITHUB_ACTIONS && process.env.CACHE_COOKIE === "true";
 
 // 任务 1.签到
 const doUserTask = async (cloudClient) => {
   const tasks = Array.from({ length: execThreshold }, () =>
     cloudClient.userSign()
   );
-  const result = (await Promise.all(tasks)).filter(
-    (res) => !res.isSign
-  );
-  return [`个人签到任务: 成功数/总请求数 ${result.length}/${tasks.length} 获得 ${result.map(res => res.netdiskBonus)?.join(",") || "0" }M 空间`];
+  const result = (await Promise.all(tasks)).filter((res) => !res.isSign);
+  return [
+    `个人签到任务: 成功数/总请求数 ${result.length}/${tasks.length} 获得 ${
+      result.map((res) => res.netdiskBonus)?.join(",") || "0"
+    }M 空间`,
+  ];
 };
 
 const doFamilyTask = async (cloudClient) => {
@@ -67,161 +56,54 @@ const doFamilyTask = async (cloudClient) => {
     const tasks = Array.from({ length: execThreshold }, () =>
       cloudClient.familyUserSign(familyId)
     );
-    const result = (await Promise.all(tasks)).filter(
-      (res) => !res.signStatus
-    );
-    return [`家庭签到任务: 成功数/总请求数 ${result.length}/${tasks.length} 获得 ${result.map(res => res.bonusSpace)?.join(",") || "0" }M 空间`];
+    const result = (await Promise.all(tasks)).filter((res) => !res.signStatus);
+    return [
+      `家庭签到任务: 成功数/总请求数 ${result.length}/${tasks.length} 获得 ${
+        result.map((res) => res.bonusSpace)?.join(",") || "0"
+      }M 空间`,
+    ];
   }
   return [];
 };
 
-const pushServerChan = (title, desp) => {
-  if (!serverChan.sendKey) {
+const cookieDir = `.cookie/${formatDateISO(new Date())}`;
+
+const saveCookies = async (userName, cookieJar) => {
+  const ipIpAddr = await getIpAddr();
+  if (!ipIpAddr) {
     return;
   }
-  const data = {
-    title,
-    desp,
-  };
-  superagent
-    .post(`https://sctapi.ftqq.com/${serverChan.sendKey}.send`)
-    .type("form")
-    .send(data)
-    .end((err, res) => {
-      if (err) {
-        logger.error(`ServerChan推送失败:${JSON.stringify(err)}`);
-        return;
-      }
-      const json = JSON.parse(res.text);
-      if (json.code !== 0) {
-        logger.error(`ServerChan推送失败:${json.info}`);
-      } else {
-        logger.info("ServerChan推送成功");
-      }
-    });
+  deleteNonTargetDirectories(".cookie", formatDateISO(new Date()));
+  const cookiePath = `${cookieDir}/${ipIpAddr}`;
+  if (!fs.existsSync(cookiePath)) {
+    fs.mkdirSync(cookiePath, { recursive: true });
+  }
+  const cookies = cookieJar
+    .getCookiesSync("https://cloud.189.cn")
+    .map((cookie) => cookie.toString());
+  fs.writeFileSync(`${cookiePath}/${userName}.json`, JSON.stringify(cookies), {
+    encoding: "utf-8",
+  });
 };
 
-const pushTelegramBot = (title, desp) => {
-  if (!(telegramBot.botToken && telegramBot.chatId)) {
+const loadCookies = async (userName) => {
+  const ipIpAddr = await getIpAddr();
+  if (!ipIpAddr) {
     return;
   }
-  const data = {
-    chat_id: telegramBot.chatId,
-    text: `${title}\n\n${desp}`,
-  };
-  superagent
-    .post(`https://api.telegram.org/bot${telegramBot.botToken}/sendMessage`)
-    .type("form")
-    .send(data)
-    .end((err, res) => {
-      if (err) {
-        logger.error(`TelegramBot推送失败:${JSON.stringify(err)}`);
-        return;
-      }
-      const json = JSON.parse(res.text);
-      if (!json.ok) {
-        logger.error(`TelegramBot推送失败:${JSON.stringify(json)}`);
-      } else {
-        logger.info("TelegramBot推送成功");
-      }
+  const cookiePath = `${cookieDir}/${ipIpAddr}`;
+  if (fs.existsSync(`${cookiePath}/${userName}.json`)) {
+    const cookies = JSON.parse(
+      fs.readFileSync(`${cookiePath}/${userName}.json`, { encoding: "utf8" })
+    );
+    const cookieJar = new CookieJar();
+    cookies.forEach((cookie) => {
+      cookieJar.setCookieSync(Cookie.parse(cookie), "https://cloud.189.cn");
     });
-};
-
-const pushWecomBot = (title, desp) => {
-  if (!(wecomBot.key && wecomBot.telphone)) {
-    return;
+    return cookieJar;
   }
-  const data = {
-    msgtype: "text",
-    text: {
-      content: `${title}\n\n${desp}`,
-      mentioned_mobile_list: [wecomBot.telphone],
-    },
-  };
-  superagent
-    .post(
-      `https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=${wecomBot.key}`
-    )
-    .send(data)
-    .end((err, res) => {
-      if (err) {
-        logger.error(`wecomBot推送失败:${JSON.stringify(err)}`);
-        return;
-      }
-      const json = JSON.parse(res.text);
-      if (json.errcode) {
-        logger.error(`wecomBot推送失败:${JSON.stringify(json)}`);
-      } else {
-        logger.info("wecomBot推送成功");
-      }
-    });
+  return null;
 };
-
-const pushWxPusher = (title, desp) => {
-  if (!(wxpush.appToken && wxpush.uid)) {
-    return;
-  }
-  const data = {
-    appToken: wxpush.appToken,
-    contentType: 1,
-    summary: title,
-    content: desp,
-    uids: [wxpush.uid],
-  };
-  superagent
-    .post("https://wxpusher.zjiecode.com/api/send/message")
-    .send(data)
-    .end((err, res) => {
-      if (err) {
-        logger.error(`wxPusher推送失败:${JSON.stringify(err)}`);
-        return;
-      }
-      const json = JSON.parse(res.text);
-      if (json.data[0].code !== 1000) {
-        logger.error(`wxPusher推送失败:${JSON.stringify(json)}`);
-      } else {
-        logger.info("wxPusher推送成功");
-      }
-    });
-};
-
-const push = (title, desp) => {
-  pushServerChan(title, desp);
-  pushTelegramBot(title, desp);
-  pushWecomBot(title, desp);
-  pushWxPusher(title, desp);
-};
-
-const formatDateISO = (date) => {
-  const isoString = date.toISOString();
-  const formattedDate = isoString.split("T")[0];
-  return formattedDate;
-};
-
-
-const cookieDir = `.cookie/${formatDateISO(new Date())}`
-
-const saveCookies = (userName, cookieJar) => {
-  if(!fs.existsSync(cookieDir)) {
-    fs.mkdirSync(cookieDir, { recursive:true })
-  }
-  const cookies = cookieJar.getCookiesSync("https://cloud.189.cn").map(cookie => cookie.toString())
-  fs.writeFileSync(`${cookieDir}/${userName}.json`, JSON.stringify(cookies), {
-    encoding: 'utf-8'
-  })
-}
-
-const loadCookies = (userName) => {
-  if(fs.existsSync(`${cookieDir}/${userName}.json`)) {
-    const cookies = JSON.parse(fs.readFileSync(`${cookieDir}/${userName}.json`, { encoding:'utf8' }))
-    const cookieJar = new CookieJar()
-    cookies.forEach(cookie => {
-      cookieJar.setCookieSync(Cookie.parse(cookie), "https://cloud.189.cn")
-    });
-    return cookieJar
-  }
-  return null
-}
 
 // 开始执行程序
 async function main() {
@@ -235,36 +117,34 @@ async function main() {
       try {
         logger.log(`账户 ${userNameInfo}开始执行`);
         const cloudClient = new CloudClient(userName, password);
-        // github action环境 ip不固定, 存cookie无效
-        if(process.env.GITHUB_ACTIONS) {
-          await cloudClient.login();
-        } else {
-          const cookies = loadCookies(userName)
-          if(cookies) {
-            cloudClient.cookieJar = cookies
+        if (cacheCookie) {
+          const cookies = await loadCookies(userName);
+          if (cookies) {
+            cloudClient.cookieJar = cookies;
           } else {
-            console.log('未发现cookie, 手动进行登录')
             await cloudClient.login();
-            saveCookies(userName, cloudClient.cookieJar)
+            await saveCookies(userName, cloudClient.cookieJar);
           }
+        } else {
+          await cloudClient.login();
         }
         const beforeUserSizeInfo = await cloudClient.getUserSizeInfo();
-        console.log(beforeUserSizeInfo)
-        // userSizeInfoMap.set(userName, {
-        //   cloudClient,
-        //   userSizeInfo: beforeUserSizeInfo,
-        // });
-        // const result = await doUserTask(cloudClient);
-        // result.forEach((r) => logger.log(r));
-        // const familyResult = await doFamilyTask(cloudClient);
-        // familyResult.forEach((r) => logger.log(r));
+        userSizeInfoMap.set(userName, {
+          cloudClient,
+          userSizeInfo: beforeUserSizeInfo,
+        });
+        const result = await doUserTask(cloudClient);
+        result.forEach((r) => logger.log(r));
+        const familyResult = await doFamilyTask(cloudClient);
+        familyResult.forEach((r) => logger.log(r));
       } catch (e) {
-        if(e.response) {
-          logger.error(`请求失败: ${e.response.statusCode}, ${e.response.body}`);
+        if (e.response) {
+          logger.log(`请求失败: ${e.response.statusCode}, ${e.response.body}`);
         } else {
           logger.error(e);
         }
-        if (e.code === "ETIMEDOUT") {
+        if (e.code === "ECONNRESET" || e.code === "ETIMEDOUT") {
+          logger.error("请求超时");
           throw e;
         }
       } finally {
