@@ -255,6 +255,9 @@ async function main() {
         // familyResult.forEach((r) => logger.log(r));
       } catch (e) {
         logger.error(e);
+        if(e.response) {
+          logger.error(`请求失败: ${e.response.statusCode}, ${e.response.body}`);
+        }
         if (e.code === "ETIMEDOUT") {
           throw e;
         }
