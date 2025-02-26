@@ -26,6 +26,10 @@ jobs:
           path: .cookie
           key: ${{ runner.os }}-cookie
 
+      - name: Test Cookie
+        if: steps.cache-cookie-restore.outputs.cache-hit
+        run: echo "cookie cache hit!"  
+
       - name: init secrets
         uses: shine1594/secrets-to-env-action@master
         with:
