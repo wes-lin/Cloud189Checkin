@@ -29,7 +29,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: .cookie
-          key: ${{ steps.data.outputs.CURRENT_DATE }}-cookie
+          key: ${{ steps.date.outputs.CURRENT_DATE }}-cookie
 
       - name: init secrets
         uses: shine1594/secrets-to-env-action@master
