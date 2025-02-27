@@ -17,19 +17,18 @@ const execThreshold = process.env.EXEC_THRESHOLD || 1;
 //缓存cookie
 const cacheCookie = process.env.CACHE_COOKIE === "true";
 
-// 任务 1.签到
+// 个人任务签到
 const doUserTask = async (cloudClient) => {
   const tasks = Array.from({ length: execThreshold }, () =>
     cloudClient.userSign()
   );
   const result = (await Promise.all(tasks)).filter((res) => !res.isSign);
-  return [
-    `个人签到任务: 成功数/总请求数 ${result.length}/${tasks.length} 获得 ${
+  return `个人签到任务: 成功数/总请求数 ${result.length}/${tasks.length} 获得 ${
       result.map((res) => res.netdiskBonus)?.join(",") || "0"
-    }M 空间`,
-  ];
+    }M 空间`
 };
 
+// 家庭任务签到
 const doFamilyTask = async (cloudClient) => {
   const { familyInfoResp } = await cloudClient.getFamilyList();
   if (familyInfoResp) {
@@ -42,11 +41,9 @@ const doFamilyTask = async (cloudClient) => {
       if (tagetFamily) {
         familyId = tagetFamily.familyId;
       } else {
-        return [
-          `没有加入到指定家庭分组${families
+        return `没有加入到指定家庭分组${families
             .map((family) => mask(family, 3, 7))
-            .toString()}`,
-        ];
+            .toString()}`;
       }
     } else {
       familyId = familyInfoResp[0].familyId;
@@ -56,13 +53,11 @@ const doFamilyTask = async (cloudClient) => {
       cloudClient.familyUserSign(familyId)
     );
     const result = (await Promise.all(tasks)).filter((res) => !res.signStatus);
-    return [
-      `家庭签到任务: 成功数/总请求数 ${result.length}/${tasks.length} 获得 ${
+    return `家庭签到任务: 成功数/总请求数 ${result.length}/${tasks.length} 获得 ${
         result.map((res) => res.bonusSpace)?.join(",") || "0"
-      }M 空间`,
-    ];
+      }M 空间`
   }
-  return [];
+  return null;
 };
 
 const cookieDir = `.cookie/${formatDateISO(new Date())}`;
@@ -132,10 +127,11 @@ async function main() {
           cloudClient,
           userSizeInfo: beforeUserSizeInfo,
         });
-        const result = await doUserTask(cloudClient);
-        result.forEach((r) => logger.log(r));
-        const familyResult = await doFamilyTask(cloudClient);
-        familyResult.forEach((r) => logger.log(r));
+        const result = await Promise.all([
+          doUserTask(cloudClient),
+          doFamilyTask(cloudClient)
+        ])
+        result.forEach((r) => logger.log(r))
       } catch (e) {
         if (e.response) {
           logger.log(`请求失败: ${e.response.statusCode}, ${e.response.body}`);
