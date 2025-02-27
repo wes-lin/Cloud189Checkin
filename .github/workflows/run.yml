@@ -18,6 +18,18 @@ jobs:
         uses: actions/setup-node@main
         with:
           node-version: 18
+          cache: npm
+      
+      - name: Get current date
+        id: date
+        run: echo "::set-out name=today::$(date + '%Y-%m-%d')"
+
+      - name: Restore cached Cookie
+        id: cache-cookie-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: .cookie
+          key: ${{ steps.data.outputs.today }}-cookie
 
       - name: init secrets
         uses: shine1594/secrets-to-env-action@master
@@ -37,6 +49,14 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: npm start
+      
+      - name: Save cookie
+        id: cache-primes-save
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            .cookie
+          key: ${{ steps.cache-cookie-restore.outputs.cache-primary-key }}
 
       - name: Keep Running
         if: github.event_name == 'schedule'

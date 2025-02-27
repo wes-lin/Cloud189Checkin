@@ -14,9 +14,8 @@ const {
 } = require("./utils");
 const push = require("./push");
 const execThreshold = process.env.EXEC_THRESHOLD || 1;
-//github action ip不固定，缓存cookie无效
-const cacheCookie =
-  !process.env.GITHUB_ACTIONS && process.env.CACHE_COOKIE === "true";
+//缓存cookie
+const cacheCookie = process.env.CACHE_COOKIE === "true";
 
 // 任务 1.签到
 const doUserTask = async (cloudClient) => {
