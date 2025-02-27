@@ -24,14 +24,12 @@ jobs:
 
       - name: 🕙 Get Cookie Cache Key
         id: cache-key
-        if: secrets.CACHE_COOKIE == 'true'
         run: |
           echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
           echo "CURRENT_IP=$(curl -s https://ipinfo.io/ip)" >> $GITHUB_OUTPUT
 
       - name: 📹 Restore cached Cookie
         id: cache-cookie-restore
-        if: secrets.CACHE_COOKIE == 'true'
         uses: actions/cache/restore@v4
         with:
           path: .cookie
@@ -57,7 +55,6 @@ jobs:
       
       - name: 💾 Save cookie
         id: cache-primes-save
-        if: secrets.CACHE_COOKIE == 'true'
         uses: actions/cache/save@v4
         with:
           path: |
