@@ -17,18 +17,17 @@ const pushServerChan = (title, desp) => {
     .post(`https://sctapi.ftqq.com/${serverChan.sendKey}.send`)
     .type("form")
     .send(data)
-    .end((err, res) => {
-      if (err) {
-        logger.error(`ServerChan推送失败:${JSON.stringify(err)}`);
-        return;
-      }
-      const json = JSON.parse(res.text);
-      if (json.code !== 0) {
-        logger.error(`ServerChan推送失败:${json.info}`);
+    .then(res => {
+      logger.info("ServerChan推送成功");
+    })
+    .catch(err => {
+      if(err.response?.text){
+        const { info } = JSON.parse(err.response.text)
+        logger.error(`ServerChan推送失败:${info}`);
       } else {
-        logger.info("ServerChan推送成功");
+        logger.error(`ServerChan推送失败:${JSON.stringify(err)}`);
       }
-    });
+    })
 };
 
 const pushTelegramBot = (title, desp) => {
