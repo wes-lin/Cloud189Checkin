@@ -9,29 +9,38 @@ on:
   schedule:
     - cron: 35 3 * * *
 jobs:
-  build-and-deploy:
+  restore-cached-cookie:
     runs-on: ubuntu-latest
     environment: user
+    if: secrets.CACHE_COOKIE == true
     steps:
-      - uses: actions/checkout@main
-      - name: Setup Node.js environment
-        uses: actions/setup-node@main
-        with:
-          node-version: 18
-          cache: npm
-      
-      - name: Get current date
-        id: date
-        run: echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+      - name: Get Cookie Cache Key
+        id: cacheKey
+        run: |
+          echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+          echo "CURRENT_IP=$(curl -s https://ipinfo.io/ip)" >> $GITHUB_OUTPUT
 
       - name: Restore cached Cookie
         id: cache-cookie-restore
         uses: actions/cache/restore@v4
         with:
           path: .cookie
-          key: ${{ steps.date.outputs.CURRENT_DATE }}-cookie
+          key: ${{ steps.cacheKey.outputs.CURRENT_DATE }}-${{ steps.cacheKey.outputs.CURRENT_IP }}-cookie
 
-      - name: init secrets
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: user
+    steps:
+      - name: Check out code
+        uses: actions/checkout@main
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@main
+        with:
+          node-version: 18
+          cache: npm
+    
+      - name: Init secrets
         uses: shine1594/secrets-to-env-action@master
         with:
           secrets: ${{ toJSON(secrets) }}
@@ -39,24 +48,24 @@ jobs:
           prefix_prod: ""
           file_name_prod: .env
 
-      - name: init
+      - name: Init dependencies
         run: npm install
 
-      - name: run
-        id: run
+      - name: Run
         uses: nick-fields/retry@master
         with:
-          timeout_minutes: 10
+          timeout_minutes: 30
           max_attempts: 3
           command: npm start
       
       - name: Save cookie
         id: cache-primes-save
         uses: actions/cache/save@v4
+        needs: restore-cached-cookie
         with:
           path: |
             .cookie
-          key: ${{ steps.cache-cookie-restore.outputs.cache-primary-key }}
+          key: ${{ needs.restore-cached-cookie.cache-cookie-restore.outputs.cache-primary-key }}
 
       - name: Keep Running
         if: github.event_name == 'schedule'
