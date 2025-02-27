@@ -83,7 +83,6 @@ jobs:
       - name: Save cookie
         id: cache-primes-save
         uses: actions/cache/save@v4
-        needs: restore-cached-cookie
         with:
           path: |
             .cookie
