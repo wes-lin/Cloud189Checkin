@@ -305,10 +305,10 @@ clone-response@^1.0.2:
   dependencies:
     mimic-response "^1.0.0"
 
-cloud189-sdk@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/cloud189-sdk/-/cloud189-sdk-1.0.1.tgz#651ba86adc1925fbe7e41fca8cf0c0748677bf77"
-  integrity sha512-sxx/76pjYgPySC+14Dnad/aQKUisWx+/8Uavl40M1dAoZiEym9DLT6NwG4OPHQbMTfwY0kCfG663HBTFCwFiGQ==
+cloud189-sdk@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/cloud189-sdk/-/cloud189-sdk-1.0.5.tgz#d03816947b7dafcd38bc5390781ef08f5e83bc09"
+  integrity sha512-N4CRdbMX3q1RU8yTUceQ+uItZOjnCZkTa+XclBwtLAvomvYtKaaAX+ZIU1cecT+Ddo3dE+58daJnknXZ2XJ0Uw==
   dependencies:
     got "11.8.2"
     node-jsencrypt "^1.0.0"
@@ -437,6 +437,11 @@ dom-walk@^0.1.0:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/dom-walk/-/dom-walk-0.1.2.tgz#0c548bef048f4d1f2a97249002236060daa3fd84"
   integrity sha512-6QvTW9mrGeIegrFXdtQi9pk7O/nSK6lSdXW2eqUspN5LWD7UTji2Fqw5V2YLjBpHEoU9Xl/eUWNpDeZvoyOv2w==
+
+dotenv@^16.4.5:
+  version "16.4.7"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.4.7.tgz#0e20c5b82950140aa99be360a8a5f52335f53c26"
+  integrity sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==
 
 end-of-stream@^1.1.0:
   version "1.4.4"
