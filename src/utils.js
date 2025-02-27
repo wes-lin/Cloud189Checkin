@@ -46,6 +46,9 @@ const getIpAddr = async () => {
 };
 
 function deleteNonTargetDirectories(dir, targetDirName) {
+  if(!fs.existsSync(dir)) {
+    return;
+  }
   // 读取目录内容
   fs.readdir(dir, (err, files) => {
     if (err) {
