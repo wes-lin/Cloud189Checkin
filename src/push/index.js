@@ -7,6 +7,7 @@ const wxpush = require("./wxPusher");
 const pushPlus = require("./pushPlus");
 
 const logger = log4js.getLogger("push");
+logger.addContext("user", "push");
 
 const pushServerChan = (title, desp) => {
   if (!serverChan.sendKey) {
@@ -45,17 +46,15 @@ const pushTelegramBot = (title, desp) => {
     .post(`https://api.telegram.org/bot${telegramBot.botToken}/sendMessage`)
     .type("form")
     .send(data)
-    .end((err, res) => {
-      if (err) {
-        logger.error(`TelegramBot推送失败:${JSON.stringify(err)}`);
-        return;
-      }
-      const json = JSON.parse(res.text);
-      if (!json.ok) {
-        logger.error(`TelegramBot推送失败:${JSON.stringify(json)}`);
-      } else {
+    .then((res) => {
+      if (res.body?.ok) {
         logger.info("TelegramBot推送成功");
+      } else {
+        logger.error(`TelegramBot推送失败:${JSON.stringify(res.body)}`);
       }
+    })
+    .catch((err) => {
+      logger.error(`TelegramBot推送失败:${JSON.stringify(err)}`);
     });
 };
 
@@ -75,17 +74,15 @@ const pushWecomBot = (title, desp) => {
       `https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=${wecomBot.key}`
     )
     .send(data)
-    .end((err, res) => {
-      if (err) {
-        logger.error(`wecomBot推送失败:${JSON.stringify(err)}`);
-        return;
-      }
-      const json = JSON.parse(res.text);
-      if (json.errcode) {
-        logger.error(`wecomBot推送失败:${JSON.stringify(json)}`);
+    .then((res) => {
+      if (res.body?.errcode) {
+        logger.error(`wecomBot推送失败:${JSON.stringify(res.body)}`);
       } else {
         logger.info("wecomBot推送成功");
       }
+    })
+    .catch((err) => {
+      logger.error(`wecomBot推送失败:${JSON.stringify(err)}`);
     });
 };
 
@@ -104,7 +101,7 @@ const pushWxPusher = (title, desp) => {
     .post("https://wxpusher.zjiecode.com/api/send/message")
     .send(data)
     .then((res) => {
-      if (res.body?.code === 100) {
+      if (res.body?.code === 1000) {
         logger.info("wxPusher推送成功");
       } else {
         logger.error(`wxPusher推送失败:${JSON.stringify(res.body)}`);
@@ -130,17 +127,15 @@ const pushPlusPusher = (title, desp) => {
   superagent
     .post("http://www.pushplus.plus/send/")
     .send(data)
-    .end((err, res) => {
-      if (err) {
-        logger.error(`pushPlus 推送失败:${JSON.stringify(err)}`);
-        return;
-      }
-      const json = JSON.parse(res.text);
-      if (json.code !== 200) {
-        logger.error(`pushPlus 推送失败:${JSON.stringify(json)}`);
-      } else {
+    .then((res) => {
+      if (res.body?.code === 200) {
         logger.info("pushPlus 推送成功");
+      } else {
+        logger.error(`pushPlus 推送失败:${JSON.stringify(res.body)}`);
       }
+    })
+    .catch((err) => {
+      logger.error(`pushPlus 推送失败:${JSON.stringify(err)}`);
     });
 };
 
