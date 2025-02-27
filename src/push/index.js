@@ -1,10 +1,12 @@
-const logger = require("../logger");
+const { log4js } = require("../logger");
 const superagent = require("superagent");
 const serverChan = require("./serverChan");
 const telegramBot = require("./telegramBot");
 const wecomBot = require("./wecomBot");
 const wxpush = require("./wxPusher");
 const pushPlus = require("./pushPlus");
+
+const logger = log4js.getLogger("push");
 
 const pushServerChan = (title, desp) => {
   if (!serverChan.sendKey) {
@@ -18,17 +20,17 @@ const pushServerChan = (title, desp) => {
     .post(`https://sctapi.ftqq.com/${serverChan.sendKey}.send`)
     .type("form")
     .send(data)
-    .then(res => {
+    .then((res) => {
       logger.info("ServerChan推送成功");
     })
-    .catch(err => {
-      if(err.response?.text){
-        const { info } = JSON.parse(err.response.text)
+    .catch((err) => {
+      if (err.response?.text) {
+        const { info } = JSON.parse(err.response.text);
         logger.error(`ServerChan推送失败:${info}`);
       } else {
         logger.error(`ServerChan推送失败:${JSON.stringify(err)}`);
       }
-    })
+    });
 };
 
 const pushTelegramBot = (title, desp) => {
@@ -101,49 +103,46 @@ const pushWxPusher = (title, desp) => {
   superagent
     .post("https://wxpusher.zjiecode.com/api/send/message")
     .send(data)
-    .end((err, res) => {
-      if (err) {
-        logger.error(`wxPusher推送失败:${JSON.stringify(err)}`);
-        return;
-      }
-      const json = JSON.parse(res.text);
-      if (json.data[0].code !== 1000) {
-        logger.error(`wxPusher推送失败:${JSON.stringify(json)}`);
-      } else {
+    .then((res) => {
+      if (res.body?.code === 100) {
         logger.info("wxPusher推送成功");
+      } else {
+        logger.error(`wxPusher推送失败:${JSON.stringify(res.body)}`);
       }
+    })
+    .catch((err) => {
+      logger.error(`wxPusher推送失败:${JSON.stringify(err)}`);
     });
 };
 
 const pushPlusPusher = (title, desp) => {
   // 如果没有配置 pushPlus 的 token，则不执行推送
-  if (!(pushPlus.token)) {
+  if (!pushPlus.token) {
     return;
   }
   // 请求体
   const data = {
     token: pushPlus.token,
     title: title,
-    content: desp
+    content: desp,
   };
   // 发送请求
   superagent
-      .post("http://www.pushplus.plus/send/")
-      .send(data)
-      .end((err, res) => {
-        if (err) {
-          logger.error(`pushPlus 推送失败:${JSON.stringify(err)}`);
-          return;
-        }
-        const json = JSON.parse(res.text);
-        if (json.code !== 200) {
-          logger.error(`pushPlus 推送失败:${JSON.stringify(json)}`);
-        } else {
-          logger.info("pushPlus 推送成功");
-        }
-      });
+    .post("http://www.pushplus.plus/send/")
+    .send(data)
+    .end((err, res) => {
+      if (err) {
+        logger.error(`pushPlus 推送失败:${JSON.stringify(err)}`);
+        return;
+      }
+      const json = JSON.parse(res.text);
+      if (json.code !== 200) {
+        logger.error(`pushPlus 推送失败:${JSON.stringify(json)}`);
+      } else {
+        logger.info("pushPlus 推送成功");
+      }
+    });
 };
-
 
 const push = (title, desp) => {
   pushServerChan(title, desp);

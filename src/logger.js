@@ -1,4 +1,5 @@
 const log4js = require("log4js");
+const fs = require("fs");
 
 log4js.configure({
   appenders: {
@@ -7,11 +8,46 @@ log4js.configure({
     },
     out: {
       type: "console",
+      layout: {
+        type: "pattern",
+        pattern: "[%d] [%p] %X{user}: %m",
+      },
+    },
+    file: {
+      type: "multiFile",
+      base: ".logs/",
+      property: "categoryName",
+      extension: ".log",
+      maxLogSize: 10485760,
+      backups: 3,
+      compress: true,
+      layout: {
+        type: "pattern",
+        pattern: "%X{user} %m",
+      },
     },
   },
-  categories: { default: { appenders: ["vcr", "out"], level: "info" } },
+  categories: {
+    default: { appenders: ["out", "file"], level: "info" },
+    push: { appenders: ["out", "vcr"], level: "info" },
+  },
 });
 
-const logger = log4js.getLogger();
+const cleanLog = (categoryName) => {
+  if (fs.existsSync(`.logs/${categoryName}.log`)) {
+    fs.unlinkSync(`.logs/${categoryName}.log`);
+  }
+};
 
-module.exports = logger;
+const catLogs = () => {
+  if (!fs.existsSync(".logs")) {
+    return "";
+  }
+  const logs = fs.readdirSync(".logs");
+  const content = logs
+    .map((file) => fs.readFileSync(`.logs/${file}`, { encoding: "utf-8" }))
+    .join("\r");
+  return content;
+};
+
+module.exports = { log4js, cleanLog, catLogs };
