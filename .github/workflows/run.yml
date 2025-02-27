@@ -22,14 +22,14 @@ jobs:
       
       - name: Get current date
         id: date
-        run: echo "::set-output name=today::$(date + '%Y-%m-%d')"
+        run: echo "CURRENT_DATE=$(date +'%Y-%d-%m')" >> $GITHUB_OUTPUT
 
       - name: Restore cached Cookie
         id: cache-cookie-restore
         uses: actions/cache/restore@v4
         with:
           path: .cookie
-          key: ${{ steps.data.outputs.today }}-cookie
+          key: ${{ steps.data.outputs.CURRENT_DATE }}-cookie
 
       - name: init secrets
         uses: shine1594/secrets-to-env-action@master
