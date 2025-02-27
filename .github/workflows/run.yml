@@ -22,7 +22,7 @@ jobs:
       
       - name: Get current date
         id: date
-        run: echo "CURRENT_DATE=$(date +'%Y-%d-%m')" >> $GITHUB_OUTPUT
+        run: echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
 
       - name: Restore cached Cookie
         id: cache-cookie-restore
