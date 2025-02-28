@@ -23,13 +23,13 @@ jobs:
           cache: npm
 
       - name: 🗳️ Check if CACHE_COOKIE is true
-        if: env.CACHE_COOKIE == 'true'
+        if: vars.CACHE_COOKIE == 'true'
         run: |
           echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
       
       - name: 📹 Restore cached Cookie
         id: cache-cookie-restore
-        if: env.CACHE_COOKIE == 'true'
+        if: vars.CACHE_COOKIE == 'true'
         uses: actions/cache@v4
         with:
           path: .cookie
