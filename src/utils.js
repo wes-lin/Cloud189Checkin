@@ -82,10 +82,19 @@ function deleteNonTargetDirectories(dir, targetDirName) {
   });
 }
 
+function groupByNum(array, groupNum) {
+  const result = [];
+  for (let i = 0; i < array.length; i += groupNum) {
+    result.push(array.slice(i, i + groupNum));
+  }
+  return result;
+}
+
 module.exports = {
   mask,
   delay,
   formatDateISO,
   getIpAddr,
   deleteNonTargetDirectories,
+  groupByNum
 };

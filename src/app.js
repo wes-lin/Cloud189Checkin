@@ -11,6 +11,7 @@ const {
   getIpAddr,
   deleteNonTargetDirectories,
   delay,
+  groupByNum,
 } = require("./utils");
 const push = require("./push");
 const { log4js, cleanLog, catLogs } = require("./logger");
@@ -153,16 +154,20 @@ const run = async (userName, password, userSizeInfoMap, logger) => {
 async function main() {
   //用于统计实际容量变化
   const userSizeInfoMap = new Map();
-  const runTasks = accounts.map((account) => {
-    const { userName, password } = account;
-    const userNameInfo = mask(userName, 3, 7);
-    cleanLog(userName);
-    const logger = log4js.getLogger(userName);
-    logger.addContext("user", userNameInfo);
-    return run(userName, password, userSizeInfoMap, logger);
-  });
-
-  await Promise.all(runTasks);
+  //分批执行
+  const groupMaxNum = 5;
+  const runTaskGroups = groupByNum(accounts, groupMaxNum)
+  for (let index = 0; index < runTaskGroups.length; index++) {
+    const taskGroup = runTaskGroups[index];
+    await Promise.all(taskGroup.map((account) => {
+      const { userName, password } = account;
+      const userNameInfo = mask(userName, 3, 7);
+      cleanLog(userName);
+      const logger = log4js.getLogger(userName);
+      logger.addContext("user", userNameInfo);
+      return run(userName, password, userSizeInfoMap, logger);
+    }));
+  }
 
   //数据汇总
   for (const [userName, { cloudClient, userSizeInfo }] of userSizeInfoMap) {
