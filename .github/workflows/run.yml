@@ -25,12 +25,13 @@ jobs:
       - name: 🗳️ Check if CACHE_COOKIE is true
         if: vars.CACHE_COOKIE == 'true'
         run: |
+          echo "CACHE_COOKIE=true" >> $GITHUB_ENV
           echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
       
       - name: 📹 Restore cached Cookie
         id: cache-cookie-restore
         if: vars.CACHE_COOKIE == 'true'
-        uses: actions/restore@v4
+        uses: actions/cache@v4
         with:
           path: .cookie
           key: ${{ env.CURRENT_DATE }}-cookie
@@ -52,15 +53,6 @@ jobs:
           timeout_minutes: 30
           max_attempts: 3
           command: npm start
-
-      - name: 💾 Save cookie
-        id: cache_primes_save
-        if: vars.CACHE_COOKIE == 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            .cookie
-          key: ${{ steps.cache-cookie-restore.outputs.cache-primary-key }}
 
       - name: 🚗 Keep Running
         if: github.event_name == 'schedule'
