@@ -8,7 +8,6 @@ const families = require("../families");
 const {
   mask,
   formatDateISO,
-  getIpAddr,
   deleteNonTargetDirectories,
   delay,
   groupByNum,
@@ -17,7 +16,7 @@ const push = require("./push");
 const { log4js, cleanLog, catLogs } = require("./logger");
 const execThreshold = process.env.EXEC_THRESHOLD || 1;
 //缓存cookie
-const cacheCookie = !process.env.GITHUB_ACTIONS && process.env.CACHE_COOKIE === "true";
+const cacheCookie = process.env.CACHE_COOKIE === "true";
 
 // 个人任务签到
 const doUserTask = async (cloudClient, logger) => {
@@ -70,12 +69,8 @@ const doFamilyTask = async (cloudClient, logger) => {
 const cookieDir = `.cookie/${formatDateISO(new Date())}`;
 
 const saveCookies = async (userName, cookieJar) => {
-  const ipIpAddr = await getIpAddr();
-  if (!ipIpAddr) {
-    return;
-  }
   deleteNonTargetDirectories(".cookie", formatDateISO(new Date()));
-  const cookiePath = `${cookieDir}/${ipIpAddr}`;
+  const cookiePath = `${cookieDir}`;
   if (!fs.existsSync(cookiePath)) {
     fs.mkdirSync(cookiePath, { recursive: true });
   }
@@ -88,18 +83,17 @@ const saveCookies = async (userName, cookieJar) => {
 };
 
 const loadCookies = async (userName) => {
-  const ipIpAddr = await getIpAddr();
-  if (!ipIpAddr) {
-    return;
-  }
-  const cookiePath = `${cookieDir}/${ipIpAddr}`;
+  const cookiePath = `${cookieDir}`;
   if (fs.existsSync(`${cookiePath}/${userName}.json`)) {
     const cookies = JSON.parse(
       fs.readFileSync(`${cookiePath}/${userName}.json`, { encoding: "utf8" })
     );
     const cookieJar = new CookieJar();
     cookies.forEach((cookie) => {
-      cookieJar.setCookieSync(Cookie.parse(cookie), "https://cloud.189.cn");
+      const cookieObj = Cookie.parse(cookie)
+      if(cookieObj.key === 'COOKIE_LOGIN_USER') {
+        cookieJar.setCookieSync(cookieObj, "https://cloud.189.cn");
+      }
     });
     return cookieJar;
   }
