@@ -21,24 +21,6 @@ jobs:
         with:
           node-version: 18
           cache: npm
-
-      - name: 🗳️ Check if CACHE_COOKIE is true
-        run: |
-          if [ "${{ secrets.CACHE_COOKIE }}" == "true" ]; then
-            echo "CACHE_COOKIE=true" >> $GITHUB_ENV
-          else
-            echo "CACHE_COOKIE=false" >> $GITHUB_ENV
-          fi
-          echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
-          echo "CURRENT_IP=$(curl -s https://ipinfo.io/ip)" >> $GITHUB_ENV
-
-      - name: 📹 Restore cached Cookie
-        id: cache-cookie-restore
-        if: env.CACHE_COOKIE == 'true'
-        uses: actions/cache/restore@v4
-        with:
-          path: .cookie
-          key: ${{ env.CURRENT_DATE }}-${{ env.CURRENT_IP }}-cookie
     
       - name: 🔧 Init secrets
         uses: shine1594/secrets-to-env-action@master
@@ -57,15 +39,6 @@ jobs:
           timeout_minutes: 30
           max_attempts: 3
           command: npm start
-      
-      - name: 💾 Save cookie
-        id: cache_primes_save
-        if: env.CACHE_COOKIE == 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            .cookie
-          key: ${{ steps.cache-cookie-restore.outputs.cache-primary-key }}
 
       - name: 🚗 Keep Running
         if: github.event_name == 'schedule'

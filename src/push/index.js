@@ -15,7 +15,7 @@ const pushServerChan = (title, desp) => {
   }
   const data = {
     title,
-    desp,
+    desp: desp.replaceAll("\n","\n\n"),
   };
   superagent
     .post(`https://sctapi.ftqq.com/${serverChan.sendKey}.send`)

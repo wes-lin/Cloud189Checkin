@@ -16,7 +16,7 @@ const push = require("./push");
 const { log4js, cleanLog, catLogs } = require("./logger");
 const execThreshold = process.env.EXEC_THRESHOLD || 1;
 //缓存cookie
-const cacheCookie = process.env.CACHE_COOKIE === "true";
+const cacheCookie = !process.env.GITHUB_ACTIONS && process.env.CACHE_COOKIE === "true";
 
 // 个人任务签到
 const doUserTask = async (cloudClient, logger) => {
