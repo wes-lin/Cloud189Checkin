@@ -4,7 +4,7 @@
 
 # 重要说明！！！
 
-请勿直接修改 .env，然后提交到 github，源码仓库是公开的，别人可以直接看到你的账号密码。因为错误使用本仓库导致账号密码泄漏，本人概不负责！！！
+请勿直接修改 .env，然后提交到 github，源码仓库是公开的，别人可以直接看到你的账号密码。因为错误使用本仓库导致账号密码泄漏，并且在使用这个脚本出现账户异常情况，本人概不负责！！！
 
 ## **目录**
 
@@ -23,13 +23,13 @@
 ### 设置工作流权限
 
 将 Settings -> Actions -> Workflow permissions 改成 Read and write permissions
-![image](https://github.com/user-attachments/assets/28d27a78-73f2-489e-aa7e-cac87c0fc509)
+![](https://github.com/user-attachments/assets/28d27a78-73f2-489e-aa7e-cac87c0fc509)
 
 ### 设置账号密码
 
-新版本的 git Action 需要创建 environment 来配合使用，创建一个名为 user 的环境。
+新版本的 git Action 需要创建 environment 来配合使用，创建一个名为 user 的环境,添加变量TY_ACCOUNTS userName 和 password 为你的天翼账号和密码,可以添加多个账号如[{"userName":"账号 1","password":"账号 1 的密码"},{"userName":"账号 2","password":"账号 2 的密码"}]
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/env.png)
-创建好后编辑 user 环境，添加变量 TY_ACCOUNTS, userName 和 password 为你的天翼账号和密码,可以添加多个账号如[{"userName":"账号 1","password":"账号 1 的密码"},{"userName":"账号 2","password":"账号 2 的密码"}]
+创建好后编辑 user 环境，添加变量 TY_ACCOUNTS
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/accounts.jpg)
 
 如果你遇到你账号密码中有特殊字符如#$等无法解析的[SyntaxError](https://github.com/wes-lin/Cloud189Checkin/issues/76),请在你的配置中将TY_ACCOUNTS用单引号包起来
@@ -99,7 +99,9 @@ Actions > Cloud check in action > build
 ### 环境配置
 
 ```
+
 Node.js 18+
+
 ```
 
 ### 克隆项目
@@ -120,15 +122,7 @@ npm install
 
 ### 运行
 
-​ 修改源码中.env 中 userName 和 password 为你的天翼账号和密码,可以添加多个账号如[{"userName":"账号 1","password":"账号 1 的密码"},{"userName":"账号 2","password":"账号 2 的密码"}]
-
-```bash
-TY_ACCOUNTS=[{"userName":"userName","password":"password"}]
-```
-
-### 推送
-
-修改 serverChan.js 或者添加环境变量 SENDKEY
+修改源码中.env 中环境变量
 
 执行命令
 
@@ -138,7 +132,7 @@ npm start
 
 ## 其他环境集成
 
-我已经把天翼网盘的相关 API 集成到[SDK](https://github.com/wes-lin/cloud189-sdk)了，有编程能力的同学可以自行拓展，集成到自己的代码环境。
+我已经把天翼网盘的相关 API 集成到 [SDK](https://github.com/wes-lin/cloud189-sdk) 了，有编程能力的同学可以自行拓展，集成到自己的代码环境。
 
 ## 交流群
 
