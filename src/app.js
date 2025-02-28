@@ -92,6 +92,7 @@ const loadCookies = async (userName) => {
     cookies.forEach((cookie) => {
       const cookieObj = Cookie.parse(cookie)
       if(cookieObj.key === 'COOKIE_LOGIN_USER') {
+        console.log(cookieObj)
         cookieJar.setCookieSync(cookieObj, "https://cloud.189.cn");
       }
     });
