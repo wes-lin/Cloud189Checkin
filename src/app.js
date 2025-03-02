@@ -13,10 +13,10 @@ const {
   groupByNum,
 } = require("./utils");
 const push = require("./push");
-const { log4js, cleanLog, catLogs } = require("./logger");
+const { log4js, cleanLogs, catLogs } = require("./logger");
 const execThreshold = process.env.EXEC_THRESHOLD || 1;
-//缓存cookie
-const cacheCookie = process.env.CACHE_COOKIE === "true";
+// 缓存cookie
+const cacheCookie = !process.env.GITHUB_ACTIONS && process.env.CACHE_COOKIE === "true";
 
 // 个人任务签到
 const doUserTask = async (cloudClient, logger) => {
@@ -83,7 +83,11 @@ const saveCookies = async (userName, cookieJar) => {
 };
 
 const loadCookies = async (userName) => {
-  const cookiePath = `${cookieDir}`;
+  const ipIpAddr = await getIpAddr();
+  if (!ipIpAddr) {
+    return null;
+  }
+  const cookiePath = `${cookieDir}/${ipIpAddr}`;
   if (fs.existsSync(`${cookiePath}/${userName}.json`)) {
     const cookies = JSON.parse(
       fs.readFileSync(`${cookiePath}/${userName}.json`, { encoding: "utf8" })
@@ -105,7 +109,7 @@ const run = async (userName, password, userSizeInfoMap, logger) => {
   if (userName && password) {
     const before = Date.now();
     try {
-      logger.log(`开始执行`);
+      logger.log('开始执行');
       const cloudClient = new CloudClient(userName, password);
       if (cacheCookie) {
         const cookies = await loadCookies(userName);
@@ -122,6 +126,7 @@ const run = async (userName, password, userSizeInfoMap, logger) => {
       userSizeInfoMap.set(userName, {
         cloudClient,
         userSizeInfo: beforeUserSizeInfo,
+        logger,
       });
       await Promise.all([
         doUserTask(cloudClient, logger),
@@ -147,17 +152,16 @@ const run = async (userName, password, userSizeInfoMap, logger) => {
 
 // 开始执行程序
 async function main() {
-  //用于统计实际容量变化
+  //  用于统计实际容量变化
   const userSizeInfoMap = new Map();
-  //分批执行
+  //  分批执行
   const groupMaxNum = 5;
-  const runTaskGroups = groupByNum(accounts, groupMaxNum)
+  const runTaskGroups = groupByNum(accounts, groupMaxNum);
   for (let index = 0; index < runTaskGroups.length; index++) {
     const taskGroup = runTaskGroups[index];
     await Promise.all(taskGroup.map((account) => {
       const { userName, password } = account;
       const userNameInfo = mask(userName, 3, 7);
-      cleanLog(userName);
       const logger = log4js.getLogger(userName);
       logger.addContext("user", userNameInfo);
       return run(userName, password, userSizeInfoMap, logger);
@@ -165,11 +169,8 @@ async function main() {
   }
 
   //数据汇总
-  for (const [userName, { cloudClient, userSizeInfo }] of userSizeInfoMap) {
+  for (const [userName, { cloudClient, userSizeInfo, logger } ] of userSizeInfoMap) {
     const afterUserSizeInfo = await cloudClient.getUserSizeInfo();
-    const userNameInfo = mask(userName, 3, 7);
-    const logger = log4js.getLogger(userName);
-    logger.addContext("user", userNameInfo);
     logger.log(
       `个人总容量增加：${(
         (afterUserSizeInfo.cloudCapacityInfo.totalSize -
@@ -197,5 +198,6 @@ async function main() {
     const content = events.map((e) => `${e.data.join("")}`).join("  \n");
     push("天翼云盘自动签到任务", logs + content);
     recording.erase();
+    cleanLogs();
   }
 })();
