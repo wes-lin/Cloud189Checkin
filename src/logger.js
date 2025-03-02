@@ -33,10 +33,16 @@ log4js.configure({
   },
 });
 
-const cleanLog = (categoryName) => {
-  if (fs.existsSync(`.logs/${categoryName}.log`)) {
-    fs.unlinkSync(`.logs/${categoryName}.log`);
+const cleanLogs = () => {
+  if (!fs.existsSync(".logs")) {
+    return;
   }
+  const logs = fs.readdirSync(".logs");
+  logs.forEach(log => {
+    if(log.endsWith(".log")) {
+      fs.unlinkSync(`.logs/${log}`);
+    }
+  })
 };
 
 const catLogs = () => {
@@ -50,4 +56,4 @@ const catLogs = () => {
   return content;
 };
 
-module.exports = { log4js, cleanLog, catLogs };
+module.exports = { log4js, cleanLogs, catLogs };

@@ -21,6 +21,20 @@ jobs:
         with:
           node-version: 18
           cache: npm
+
+      - name: 🗳️ Check if CACHE_COOKIE is true
+        if: vars.CACHE_COOKIE == 'true'
+        run: |
+          echo "CACHE_COOKIE=true" >> $GITHUB_ENV
+          echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+      
+      - name: 📹 Restore cached Cookie
+        id: cache-cookie-restore
+        if: vars.CACHE_COOKIE == 'true'
+        uses: actions/cache@v4
+        with:
+          path: .cookie
+          key: ${{ env.CURRENT_DATE }}-cookie
     
       - name: 🔧 Init secrets
         uses: shine1594/secrets-to-env-action@master
