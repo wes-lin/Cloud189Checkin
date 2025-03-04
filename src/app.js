@@ -11,6 +11,7 @@ const {
   deleteNonTargetDirectories,
   delay,
   groupByNum,
+  getIpAddr,
 } = require("./utils");
 const push = require("./push");
 const { log4js, cleanLogs, catLogs } = require("./logger");
@@ -155,7 +156,7 @@ async function main() {
   //  用于统计实际容量变化
   const userSizeInfoMap = new Map();
   //  分批执行
-  const groupMaxNum = 5;
+  const groupMaxNum = 1;
   const runTaskGroups = groupByNum(accounts, groupMaxNum);
   for (let index = 0; index < runTaskGroups.length; index++) {
     const taskGroup = runTaskGroups[index];
