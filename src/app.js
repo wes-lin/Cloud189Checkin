@@ -1,16 +1,15 @@
 require("dotenv").config();
 const fs = require("fs");
-const { Cookie, CookieJar } = require("tough-cookie");
+const { CookieJar } = require("tough-cookie");
 const { CloudClient } = require("cloud189-sdk");
+const { FileCookieStore } = require('tough-cookie-file-store')
 const recording = require("log4js/lib/appenders/recording");
 const accounts = require("../accounts");
 const families = require("../families");
 const {
   mask,
   formatDateISO,
-  deleteNonTargetDirectories,
   delay,
-  groupByNum,
 } = require("./utils");
 const push = require("./push");
 const { log4js, cleanLogs, catLogs } = require("./logger");
@@ -68,60 +67,20 @@ const doFamilyTask = async (cloudClient, logger) => {
 
 const cookieDir = `.cookie/${formatDateISO(new Date())}`;
 
-const saveCookies = async (userName, cookieJar) => {
-  deleteNonTargetDirectories(".cookie", formatDateISO(new Date()));
-  const cookiePath = `${cookieDir}`;
-  if (!fs.existsSync(cookiePath)) {
-    fs.mkdirSync(cookiePath, { recursive: true });
-  }
-  const cookies = cookieJar
-    .getCookiesSync("https://cloud.189.cn")
-    .map((cookie) => cookie.toString());
-  fs.writeFileSync(`${cookiePath}/${userName}.json`, JSON.stringify(cookies), {
-    encoding: "utf-8",
-  });
-};
-
-const loadCookies = async (userName) => {
-  const ipIpAddr = await getIpAddr();
-  if (!ipIpAddr) {
-    return null;
-  }
-  const cookiePath = `${cookieDir}/${ipIpAddr}`;
-  if (fs.existsSync(`${cookiePath}/${userName}.json`)) {
-    const cookies = JSON.parse(
-      fs.readFileSync(`${cookiePath}/${userName}.json`, { encoding: "utf8" })
-    );
-    const cookieJar = new CookieJar();
-    cookies.forEach((cookie) => {
-      const cookieObj = Cookie.parse(cookie)
-      if(cookieObj.key === 'COOKIE_LOGIN_USER') {
-        console.log(cookieObj)
-        cookieJar.setCookieSync(cookieObj, "https://cloud.189.cn");
-      }
-    });
-    return cookieJar;
-  }
-  return null;
-};
-
 const run = async (userName, password, userSizeInfoMap, logger) => {
   if (userName && password) {
     const before = Date.now();
     try {
       logger.log('开始执行');
-      const cloudClient = new CloudClient(userName, password);
+      let cookieJar = null;
       if (cacheCookie) {
-        const cookies = await loadCookies(userName);
-        if (cookies) {
-          cloudClient.cookieJar = cookies;
-        } else {
-          await cloudClient.login();
-          await saveCookies(userName, cloudClient.cookieJar);
-        }
-      } else {
-        await cloudClient.login();
+        cookieJar = new CookieJar(new FileCookieStore(`${cookieDir}/${userName}.json`))
       }
+      const cloudClient = new CloudClient({
+        username: userName, 
+        password,
+        cookie: cookieJar
+      });
       const beforeUserSizeInfo = await cloudClient.getUserSizeInfo();
       userSizeInfoMap.set(userName, {
         cloudClient,
@@ -152,20 +111,18 @@ const run = async (userName, password, userSizeInfoMap, logger) => {
 
 // 开始执行程序
 async function main() {
+  if (cacheCookie && !fs.existsSync(cookieDir)) {
+    fs.mkdirSync(cookieDir, { recursive: true });
+  }
   //  用于统计实际容量变化
   const userSizeInfoMap = new Map();
-  //  分批执行
-  const groupMaxNum = 5;
-  const runTaskGroups = groupByNum(accounts, groupMaxNum);
-  for (let index = 0; index < runTaskGroups.length; index++) {
-    const taskGroup = runTaskGroups[index];
-    await Promise.all(taskGroup.map((account) => {
-      const { userName, password } = account;
-      const userNameInfo = mask(userName, 3, 7);
-      const logger = log4js.getLogger(userName);
-      logger.addContext("user", userNameInfo);
-      return run(userName, password, userSizeInfoMap, logger);
-    }));
+  for (let index = 0; index < accounts.length; index++) {
+    const account = accounts[index];
+    const { userName, password } = account;
+    const userNameInfo = mask(userName, 3, 7);
+    const logger = log4js.getLogger(userName);
+    logger.addContext("user", userNameInfo);
+    await run(userName, password, userSizeInfoMap, logger);
   }
 
   //数据汇总
