@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: user
     steps:
-       - name: 🔀 random delay 0-300 seconds
+      - name: 🔀 random delay 0-300 seconds
         run: sleep $((RANDOM % 301))
 
       - name: 🔌 Check out code
