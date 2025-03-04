@@ -1,5 +1,3 @@
-const fs = require("fs");
-const path = require("path");
 const superagent = require("superagent");
 
 const mask = (s, start, end) => s.split("").fill("*", start, end).join("");
@@ -45,43 +43,6 @@ const getIpAddr = async () => {
   return process.env.IP_ADDRESS;
 };
 
-function deleteNonTargetDirectories(dir, targetDirName) {
-  if(!fs.existsSync(dir)) {
-    return;
-  }
-  // 读取目录内容
-  fs.readdir(dir, (err, files) => {
-    if (err) {
-      console.error("Error reading directory:", err);
-      return;
-    }
-
-    // 遍历目录内容
-    files.forEach((file) => {
-      const filePath = path.join(dir, file);
-      // 检查是否是目录
-      fs.stat(filePath, (err, stats) => {
-        if (err) {
-          console.error("Error getting file stats:", err);
-          return;
-        }
-        if (stats.isDirectory()) {
-          // 如果是目录且不是目标目录，删除整个目录
-          if (file !== targetDirName) {
-            fs.rm(filePath, { recursive: true, force: true }, (err) => {
-              if (err) {
-                console.error(`Error deleting directory ${filePath}:`, err);
-              } else {
-                console.log(`Deleted directory: ${filePath}`);
-              }
-            });
-          }
-        }
-      });
-    });
-  });
-}
-
 function groupByNum(array, groupNum) {
   const result = [];
   for (let i = 0; i < array.length; i += groupNum) {
@@ -95,6 +56,5 @@ module.exports = {
   delay,
   formatDateISO,
   getIpAddr,
-  deleteNonTargetDirectories,
   groupByNum
 };
