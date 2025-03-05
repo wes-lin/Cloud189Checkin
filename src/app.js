@@ -69,6 +69,7 @@ const run = async (userName, password, userSizeInfoMap, logger) => {
         username: userName, 
         password
       });
+      await cloudClient.login()
       const beforeUserSizeInfo = await cloudClient.getUserSizeInfo();
       userSizeInfoMap.set(userName, {
         cloudClient,
