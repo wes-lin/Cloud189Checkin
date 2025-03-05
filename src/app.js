@@ -1,8 +1,5 @@
 require("dotenv").config();
-const fs = require("fs");
-const { CookieJar } = require("tough-cookie");
 const { CloudClient } = require("cloud189-sdk");
-const { FileCookieStore } = require('tough-cookie-file-store')
 const recording = require("log4js/lib/appenders/recording");
 const accounts = require("../accounts");
 const families = require("../families");
@@ -14,8 +11,6 @@ const {
 const push = require("./push");
 const { log4js, cleanLogs, catLogs } = require("./logger");
 const execThreshold = process.env.EXEC_THRESHOLD || 1;
-// 缓存cookie
-const cacheCookie = !process.env.GITHUB_ACTIONS && process.env.CACHE_COOKIE === "true";
 
 // 个人任务签到
 const doUserTask = async (cloudClient, logger) => {
@@ -65,22 +60,16 @@ const doFamilyTask = async (cloudClient, logger) => {
   }
 };
 
-const cookieDir = `.cookie/${formatDateISO(new Date())}`;
-
 const run = async (userName, password, userSizeInfoMap, logger) => {
   if (userName && password) {
     const before = Date.now();
     try {
       logger.log('开始执行');
-      let cookieJar = null;
-      if (cacheCookie) {
-        cookieJar = new CookieJar(new FileCookieStore(`${cookieDir}/${userName}.json`))
-      }
       const cloudClient = new CloudClient({
         username: userName, 
-        password,
-        cookie: cookieJar
+        password
       });
+      await cloudClient.login()
       const beforeUserSizeInfo = await cloudClient.getUserSizeInfo();
       userSizeInfoMap.set(userName, {
         cloudClient,
@@ -111,9 +100,6 @@ const run = async (userName, password, userSizeInfoMap, logger) => {
 
 // 开始执行程序
 async function main() {
-  if (cacheCookie && !fs.existsSync(cookieDir)) {
-    fs.mkdirSync(cookieDir, { recursive: true });
-  }
   //  用于统计实际容量变化
   const userSizeInfoMap = new Map();
   for (let index = 0; index < accounts.length; index++) {
