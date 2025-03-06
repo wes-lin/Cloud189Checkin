@@ -41,7 +41,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .token
-          key: cache-token
+          key: ${{ runner.os }}-cache-token
     
       - name: 🔧 Init secrets
         uses: shine1594/secrets-to-env-action@master
