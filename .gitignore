@@ -17,6 +17,6 @@ tests/**/coverage/
 
 cheese.log
 
-.cookie
+.token
 
 .logs
