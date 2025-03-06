@@ -33,7 +33,7 @@ jobs:
       - name: 🗳️ Check if cacheToken is true
         if: vars.cacheToken == '1'
         run: |
-          echo "CACHE_COOKIE=1" >> $GITHUB_ENV
+          echo "CACHE_TOKEN=1" >> $GITHUB_ENV
       
       - name: 📹 Restore cached Cookie
         id: cache-cookie-restore
