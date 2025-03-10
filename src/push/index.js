@@ -5,6 +5,7 @@ const telegramBot = require("./telegramBot");
 const wecomBot = require("./wecomBot");
 const wxpush = require("./wxPusher");
 const pushPlus = require("./pushPlus");
+const bark = require("./bark");
 
 const logger = log4js.getLogger("push");
 logger.addContext("user", "push");
@@ -139,12 +140,30 @@ const pushPlusPusher = (title, desp) => {
     });
 };
 
+const pushBark = (title, desp) => {
+  if (!bark.deviceKey) {
+    return;
+  }
+  const encodedUrl = encodeURI(`${bark.apiServer}/${bark.deviceKey}/${title}/${desp}`);
+  superagent
+    .get(encodedUrl)
+    .then((response) => {
+      // 请求成功
+      logger.info("Bark推送成功");
+    })
+    .catch((error) => {
+      // 请求失败
+      logger.error(`Bark推送失败: ${JSON.stringify(error)}`);
+    });
+};
+
 const push = (title, desp) => {
   pushServerChan(title, desp);
   pushTelegramBot(title, desp);
   pushWecomBot(title, desp);
   pushWxPusher(title, desp);
   pushPlusPusher(title, desp);
+  pushBark(title, desp);
 };
 
 module.exports = push;
