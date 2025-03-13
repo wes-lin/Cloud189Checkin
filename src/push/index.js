@@ -142,10 +142,10 @@ const pushPlusPusher = (title, desp) => {
 };
 
 const pushBark = (title, desp) => {
-  if (!bark.deviceKey) {
+  if (!bark.apiServer || !bark.sendKey) {
     return;
   }
-  const encodedUrl = encodeURI(`${bark.apiServer}/${bark.deviceKey}/${title}/${desp}`);
+  const encodedUrl = encodeURI(`${bark.apiServer}/${bark.sendKey}/${title}/${desp}`);
   superagent
     .get(encodedUrl)
     .then((response) => {

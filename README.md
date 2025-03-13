@@ -82,12 +82,19 @@
 - 拿到 token 后，把 PUSH_PLUS_TOKEN 配成你拿到的 token.
 - 免费用户每天有 200 条推送额度
 
+#### ShowDoc 推送
+
+- `SHOWDOC_KEY ` _ShowDoc 推送 key_
+- ShowDoc 官网：https://push.showdoc.com.cn
+- 打开官网，关注公众号，拿到 key 后，把 SHOWDOC_KEY 配成你拿到的 key
+- 使用简单、开箱可用、长期维护、持续免费、编程可玩、不限制消息数量、不限制请求数
+
 #### Bark 推送 (仅支持 iPhone、iPad、M芯片Mac)
 
-- `BARK_DEVICE_KEY ` _Bark 推送 key_
+- `BARK_KEY ` _Bark 推送 key_
 - Bark 官网：https://bark.day.app/
-- 安装Bark app，开启通知权限，拿到 key 后，把 BARK_DEVICE_KEY 配成你拿到的 key
-- `可选`支持自定义server, 配置成 BARK_API_SERVER ，默认为官方通道 https://api.day.app
+- 安装Bark app，开启通知权限，拿到 key 后，把 BARK_KEY 配成你拿到的 key
+- `可选` 支持自定义server, 配置成 BARK_SERVER ，默认为官方通道 https://api.day.app
 - 免费、开源、轻量；使用苹果APNS服务，及时、稳定、可靠；不会消耗设备的电量，基于系统推送服务与推送扩展，app本体并不需要运行；隐私安全，可以通过一些方式确保包含作者本人在内的所有人都无法窃取你的隐私
 
 ### 执行任务

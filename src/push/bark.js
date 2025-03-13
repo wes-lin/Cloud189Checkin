@@ -1,5 +1,5 @@
 module.exports = {
-    apiServer: process.env.BARK_API_SERVER || '',
-    deviceKey: process.env.BARK_DEVICE_KEY || '',
+    sendKey: process.env.BARK_KEY || '',
+    apiServer: process.env.BARK_SERVER || 'https://api.day.app',
 };
   
