@@ -130,6 +130,10 @@ npm install
 npm start
 ```
 
+## 玄武(青龙)面板
+
+### [教程](image/xuanwu.md)
+
 ## 其他环境集成
 
 我已经把天翼网盘的相关 API 集成到 [SDK](https://github.com/wes-lin/cloud189-sdk) 了，有编程能力的同学可以自行拓展，集成到自己的代码环境。
