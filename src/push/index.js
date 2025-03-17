@@ -5,6 +5,8 @@ const telegramBot = require("./telegramBot");
 const wecomBot = require("./wecomBot");
 const wxpush = require("./wxPusher");
 const pushPlus = require("./pushPlus");
+const bark = require("./bark");
+const showDoc = require("./showDoc");
 
 const logger = log4js.getLogger("push");
 logger.addContext("user", "push");
@@ -139,12 +141,53 @@ const pushPlusPusher = (title, desp) => {
     });
 };
 
+const pushBark = (title, desp) => {
+  if (!bark.apiServer || !bark.sendKey) {
+    return;
+  }
+  const encodedUrl = `${bark.apiServer}/${bark.sendKey}/${encodeURIComponent(title)}/${encodeURIComponent(desp)}`;
+  superagent
+    .get(encodedUrl)
+    .then((response) => {
+      // 请求成功
+      logger.info("Bark推送成功");
+    })
+    .catch((error) => {
+      // 请求失败
+      logger.error(`Bark推送失败: ${JSON.stringify(error)}`);
+    });
+};
+
+const pushShowDoc = (title, desp) => {
+  if (!showDoc.sendKey) {
+    return;
+  }
+  const encodedUrl = encodeURI(`https://push.showdoc.com.cn/server/api/push/${showDoc.sendKey}`);
+  const data = {
+    title: title,
+    content: desp,
+  };
+  superagent
+    .get(encodedUrl)
+    .send(data)
+    .then((response) => {
+      // 请求成功
+      logger.info("ShowDoc推送成功");
+    })
+    .catch((error) => {
+      // 请求失败
+      logger.error(`ShowDoc推送失败: ${JSON.stringify(error)}`);
+    });
+};
+
 const push = (title, desp) => {
   pushServerChan(title, desp);
   pushTelegramBot(title, desp);
   pushWecomBot(title, desp);
   pushWxPusher(title, desp);
   pushPlusPusher(title, desp);
+  pushBark(title, desp);
+  pushShowDoc(title, desp);
 };
 
 module.exports = push;
