@@ -6,10 +6,12 @@
 
 请勿直接修改 .env，然后提交到 github，源码仓库是公开的，别人可以直接看到你的账号密码。因为错误使用本仓库导致账号密码泄漏，并且在使用这个脚本出现账户异常情况，本人概不负责！！！
 
-## **目录**
+# **目录**
 
 - [GitHub Action 运行](#GitHubAction运行)
 - [本地运行](#本地运行)
+- [设置推送](#设置推送)
+- [玄武-青龙面板](#玄武-青龙面板)
 - [其他环境集成](#其他环境集成)
 - [交流群](#交流群)
 - [更新内容](#更新内容)
@@ -48,25 +50,25 @@
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/families.jpg)
 
 
-### 设置推送
+## 设置推送
 
-#### Server 酱
+### Server 酱
 
 为了考虑到不同客户端兼容性,采用了 Server 酱,只需多配置下 SENDKEY
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/push.png)就行,Server 酱的配置和 sendkey 的获取可参看[Server 酱官网](https://sct.ftqq.com/)
 
-#### TelegramBot 推送
+### TelegramBot 推送
 
 - `TELEGRAM_BOT_TOKEN` _Telegram Bot Token_
 - `TELEGRAM_CHAT_ID` _Telegram 接收推送消息的会话 ID_
 
-#### 微信群机器人推送
+### 微信群机器人推送
 
 - `WECOM_BOT_KEY ` _微信群机器人 webhook_
 - `WECOM_BOT_TELPHONE ` _接收推送手机号_
   [群机器人配置说明](https://developer.work.weixin.qq.com/document/path/91770)
 
-#### WxPusher 推送
+### WxPusher 推送
 
 - `WX_PUSHER_APP_TOKEN ` _WxPuser 推送 AppToken_
 - `WX_PUSHER_UID ` _接收推送 UID_
@@ -75,21 +77,21 @@
   然后拿到 UID 后,把 WX_PUSHER_UID 配成你拿到的 UID.
   ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/wxpusher.jpg)
 
-#### pushPlus 推送
+### PushPlus 推送
 
 - `PUSH_PLUS_TOKEN ` _pushPlus 推送 token_
 - 注册和获取 token：https://www.pushplus.plus/uc.html
 - 拿到 token 后，把 PUSH_PLUS_TOKEN 配成你拿到的 token.
 - 免费用户每天有 200 条推送额度
 
-#### ShowDoc 推送
+### ShowDoc 推送
 
 - `SHOWDOC_KEY ` _ShowDoc 推送 key_
 - ShowDoc 官网：https://push.showdoc.com.cn
 - 打开官网，关注公众号，拿到 key 后，把 SHOWDOC_KEY 配成你拿到的 key
 - 使用简单、开箱可用、长期维护、持续免费、编程可玩、不限制消息数量、不限制请求数
 
-#### Bark 推送 (仅支持 iPhone、iPad、M芯片Mac)
+### Bark 推送 (仅支持 iPhone、iPad、M芯片Mac)
 
 - `BARK_KEY ` _Bark 推送 key_
 - Bark 官网：https://bark.day.app/
@@ -145,9 +147,9 @@ npm install
 npm start
 ```
 
-## 玄武(青龙)面板
+## 玄武-青龙面板
 
-### [教程](image/xuanwu.md)
+### [教程](doc/xuanwu)
 
 ## 其他环境集成
 
