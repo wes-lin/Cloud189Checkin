@@ -35,14 +35,8 @@ jobs:
         run: |
           echo "CACHE_TOKEN=1" >> $GITHUB_ENV
 
-      - name: 🗳️ Generate or update .token file
-        if: vars.cacheToken == '1'
-        run: |
-          mkdir -p .token
-          # 模拟生成或更新 .token 文件
-          echo '{"key": "value"}' > .token/file.json
-
-      - name: 📹 Cache .token file
+      - name: 📹 Restore cached .token directory
+        id: cache-token-restore
         if: vars.cacheToken == '1'
         uses: actions/cache@v4
         with:
@@ -68,6 +62,15 @@ jobs:
           timeout_minutes: 30
           max_attempts: 3
           command: npm start
+
+      - name: 📹 Cache .token directory (if files changed)
+        if: vars.cacheToken == '1' && steps.cache-token-restore.outputs.cache-hit != 'true'
+        uses: actions/cache@v4
+        with:
+          path: .token
+          key: ${{ runner.os }}-cache-token-${{ hashFiles('.token/*.json') }}
+          restore-keys: |
+            ${{ runner.os }}-cache-token-
 
       - name: 🚗 Keep Running
         if: github.event_name == 'schedule'
