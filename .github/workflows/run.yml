@@ -35,15 +35,27 @@ jobs:
         run: |
           echo "CACHE_TOKEN=1" >> $GITHUB_ENV
 
-      - name: 📹 Restore cached .token directory
-        id: cache-token-restore
+      - name: 📹 Cache token hash
         if: vars.cacheToken == '1'
+        id: cache-token-hash
         uses: actions/cache@v4
         with:
+          path: token-hash
+          key: ${{ runner.os }}-cache-token-hash
+
+      - name: 📝 Read token hash
+        if: steps.cache-token-hash.outputs.cache-hit == 'true'
+        id: read-token-hash
+        run: |
+          TOKEN_HASH=$(cat token-hash)
+          echo "hash=$TOKEN_HASH" >> $GITHUB_OUTPUT
+
+      - name: 📹 Cache token directory
+        if: steps.cache-token-hash.outputs.cache-hit == 'true'
+        uses: actions/cache/restore@v4
+        with:
           path: .token
-          key: ${{ runner.os }}-cache-token-${{ hashFiles('.token/*.json') }}
-          restore-keys: |
-            ${{ runner.os }}-cache-token-
+          key: ${{ runner.os }}-cache-token-${{ steps.read-token-hash.outputs.hash }}
 
       - name: 🔧 Init secrets
         uses: shine1594/secrets-to-env-action@master
@@ -63,14 +75,20 @@ jobs:
           max_attempts: 3
           command: npm start
 
-      - name: 📹 Cache .token directory (if files changed)
-        if: vars.cacheToken == '1' && steps.cache-token-restore.outputs.cache-hit != 'true'
-        uses: actions/cache@v4
+      - name: 📝 Cache token hash
+        if: vars.cacheToken == '1'
+        id: token-save-step
+        run: |
+          TOKEN_HASH=$(sha256sum .token/*.json | awk '{print $1}')
+          echo "$TOKEN_HASH" > token-hash
+          echo "hash=$TOKEN_HASH" >> $GITHUB_OUTPUT
+
+      - name: 📹 Cache token directory
+        if: vars.cacheToken == '1'
+        uses: actions/cache/save@v4
         with:
           path: .token
-          key: ${{ runner.os }}-cache-token-${{ hashFiles('.token/*.json') }}
-          restore-keys: |
-            ${{ runner.os }}-cache-token-
+          key: ${{ runner.os }}-cache-token-${{ steps.token-save-step.outputs.hash }}
 
       - name: 🚗 Keep Running
         if: github.event_name == 'schedule'
