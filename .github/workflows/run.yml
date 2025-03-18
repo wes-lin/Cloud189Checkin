@@ -79,7 +79,7 @@ jobs:
         if: vars.cacheToken == '1'
         id: token-save-step
         run: |
-          TOKEN_HASH=$(sha256sum .token/*.json | awk '{print $1}')
+          TOKEN_HASH=${{ hashFiles('.token/*.json') }}
           echo "$TOKEN_HASH" > token-hash
           echo "hash=$TOKEN_HASH" >> $GITHUB_OUTPUT
 
