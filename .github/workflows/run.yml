@@ -43,7 +43,7 @@ jobs:
           path: .token
           key: ${{ runner.os }}-cache-token-${{ hashFiles('.token/*.json') }}
           restore-keys: |
-            {{ runner.os }}-cache-token-
+            ${{ runner.os }}-cache-token-
 
       - name: 🔧 Init secrets
         uses: shine1594/secrets-to-env-action@master
