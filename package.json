@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cloud189-sdk": "^1.0.6-alpha.4",
+    "cloud189-sdk": "^1.0.6-alpha.5",
     "dotenv": "^16.4.5",
     "log4js": "^6.9.1",
     "superagent": "^7.1.3"
