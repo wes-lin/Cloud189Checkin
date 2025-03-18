@@ -35,8 +35,14 @@ jobs:
         run: |
           echo "CACHE_TOKEN=1" >> $GITHUB_ENV
 
-      - name: 📹 Restore cached Cookie
-        id: cache-cookie-restore
+      - name: 🗳️ Generate or update .token file
+        if: vars.cacheToken == '1'
+        run: |
+          mkdir -p .token
+          # 模拟生成或更新 .token 文件
+          echo '{"key": "value"}' > .token/file.json
+
+      - name: 📹 Cache .token file
         if: vars.cacheToken == '1'
         uses: actions/cache@v4
         with:
