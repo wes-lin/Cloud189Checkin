@@ -7,45 +7,75 @@ on:
     types: started
   workflow_dispatch:
   schedule:
-    - cron: 35 3 * * *
+    - cron: 35 2 * * *
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     environment: user
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3
+      - name: 🔀 random delay 0-300 seconds
+        run: sleep $((RANDOM % 301))
+
+      - name: 🔌 Check out code
+        uses: actions/checkout@main
+
+      - name: 🔨 Setup Node.js environment
+        uses: actions/setup-node@main
         with:
-          node-version: 14
-      - name: init
+          node-version: 18
+          cache: npm
+
+      - name: 👾 Check if Debug is true
+        if: vars.debug == '1'
+        run: |
+          echo "CLOUD189_VERBOSE=1" >> $GITHUB_ENV
+      
+      - name: 📹 Restore cached Cookie
+        id: cache-cookie-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: .token
+          key: ${{ runner.os }}-cache-token
+          restore-keys: ${{ runner.os }}-cache-token-
+
+      - name: 🔧 Init secrets
+        uses: shine1594/secrets-to-env-action@master
+        with:
+          secrets: ${{ toJSON(secrets) }}
+          secrets_env: production
+          prefix_prod: ""
+          file_name_prod: .env
+
+      - name: 📡 Init dependencies
         run: npm install
-      - name: run
-        id: run
-        uses: nick-fields/retry@v2
-        env:
-          TY_USER_NAME: ${{secrets.TY_USER_NAME}}
-          TY_PASSWORD: ${{secrets.TY_PASSWORD}}
-          TY_USER_NAME1: ${{secrets.TY_USER_NAME1}}
-          TY_PASSWORD1: ${{secrets.TY_PASSWORD1}}
-          TY_USER_NAME2: ${{secrets.TY_USER_NAME2}}
-          TY_PASSWORD2: ${{secrets.TY_PASSWORD2}}
-          TY_USER_NAME3: ${{secrets.TY_USER_NAME3}}
-          TY_PASSWORD3: ${{secrets.TY_PASSWORD3}}
-          TY_USER_NAME4: ${{secrets.TY_USER_NAME4}}
-          TY_PASSWORD4: ${{secrets.TY_PASSWORD4}}
-          # Server
-          SENDKEY: ${{secrets.SENDKEY}}
-          # Telegram
-          TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
-          TELEGRAM_CHAT_ID: ${{secrets.TELEGRAM_CHAT_ID}}
-          # WecomBot
-          WECOM_BOT_KEY: ${{secrets.WECOM_BOT_KEY}}
-          WECOM_BOT_TELPHONE: ${{secrets.WECOM_BOT_TELPHONE}}
-          # WxPusher
-          WX_PUSHER_APP_TOKEN: ${{secrets.WX_PUSHER_APP_TOKEN}}
-          WX_PUSHER_UID: ${{secrets.WX_PUSHER_UID}}
+
+      - name: 🚀 Run
+        uses: nick-fields/retry@master
         with:
-          timeout_minutes: 10
+          timeout_minutes: 30
           max_attempts: 3
           command: npm start
+      
+      - name: 📹 Save cached Cookie
+        uses: actions/cache/save@v4
+        with:
+          path: .token
+          key: ${{ runner.os }}-cache-token-${{ hashFiles('.token/*.json') }}
+
+      - name: 🚗 Keep Running
+        if: github.event_name == 'schedule'
+        run: |
+          git config --local user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
+          git config --local user.name "${{ github.actor }}"
+          git remote set-url origin https://${{ github.actor }}:${{ github.token }}@github.com/${{ github.repository }}
+          git pull --rebase --autostash
+          git commit --allow-empty -m "Keep Running..."
+          git push
+
+      - name: 🎉 Delete old workflow run
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          retain_days: 0
+          keep_minimum_runs: 50
