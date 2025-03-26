@@ -52,12 +52,12 @@
 
 1. 命令方法
     - 青龙的用法大致和玄武一样，但青龙没有工作目录，所以每次执行的命令都要先进入项目目录，并用 `sh -c` 调用，命令为：  
-      `sh -c "cd /ql/data/scripts/{目录} && npm ...`
+      `sh -c "cd /ql/data/scripts/{目录} && npm ..."`
 
     - 用上面的例子安装依赖命令就是：  
-      `sh -c "cd /ql/data/scripts/189 && npm install`
+      `sh -c "cd /ql/data/scripts/189 && npm install"`
 
     - 然后执行时将命令改为：  
-      `sh -c "cd /ql/data/scripts/189 && npm start`
+      `sh -c "cd /ql/data/scripts/189 && npm start"`
 
 2. [建脚本方法](https://www.yuque.com/w992/it/cloud189checkin)
