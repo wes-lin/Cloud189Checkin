@@ -1,13 +1,13 @@
-### **玄武**：[GitCourser/XuanWu](https://github.com/GitCourser/XuanWu)
+## 玄武：[GitCourser/XuanWu](https://github.com/GitCourser/XuanWu)
 
-#### 和本地步骤一样，先看本地步骤：
+### 和本地步骤一样，先看本地步骤：
 
 1. 环境（node 18+）
 2. 下载（克隆）项目
 3. 安装依赖
 4. 运行
 
-#### 教程开始
+### 教程开始
 
 1. docker版自带 nodejs 可跳过安装环境，linux 和 windows 需自己下载安装
 
@@ -47,4 +47,17 @@
     - 后面新建任务时就只有工作目录变成新的，其他不变
     - ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/doc/xuanwu/xw-14.png)
 
-#### 最后说下青龙，用法和这个一样，但青龙没有工作目录，所以每次执行的命令都要在前面加 `cd 路径 && `
+
+## 青龙：[whyour/qinglong](https://github.com/whyour/qinglong)
+
+1. 命令方法
+    - 青龙的用法大致和玄武一样，但青龙没有工作目录，所以每次执行的命令都要先进入项目目录，并用 `sh -c` 调用，命令为：  
+      `sh -c "cd /ql/data/scripts/{目录} && npm ..."`
+
+    - 用上面的例子安装依赖命令就是：  
+      `sh -c "cd /ql/data/scripts/189 && npm install"`
+
+    - 然后执行时将命令改为：  
+      `sh -c "cd /ql/data/scripts/189 && npm start"`
+
+2. [建脚本方法](https://www.yuque.com/w992/it/cloud189checkin)
