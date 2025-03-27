@@ -129,7 +129,7 @@ async function main() {
         1024 /
         1024
       ).toFixed(2)}M/${(
-        userSizeInfo.cloudCapacityInfo.totalSize /
+        afterUserSizeInfo.cloudCapacityInfo.totalSize /
         1024 /
         1024 /
         1024
@@ -140,7 +140,7 @@ async function main() {
         1024 /
         1024
       ).toFixed(2)}M/${(
-        userSizeInfo.familyCapacityInfo.totalSize /
+        afterUserSizeInfo.familyCapacityInfo.totalSize /
         1024 /
         1024 /
         1024
