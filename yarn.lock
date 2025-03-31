@@ -305,10 +305,10 @@ clone-response@^1.0.2:
   dependencies:
     mimic-response "^1.0.0"
 
-cloud189-sdk@^1.0.6-alpha.4:
-  version "1.0.6-alpha.4"
-  resolved "https://registry.yarnpkg.com/cloud189-sdk/-/cloud189-sdk-1.0.6-alpha.4.tgz#b52f8d54ea15f6813cd03db9ea693f975e733e5a"
-  integrity sha512-uO3FYV4SBWcypqaXpTt6Owh/dPsUI5+ZaNWMkhrYI31Y3hwEVVF3THRNbUm1rUfeaghpngQ4+KGtqgS5IhYBuQ==
+cloud189-sdk@^1.0.6-alpha.6:
+  version "1.0.6-alpha.6"
+  resolved "https://registry.yarnpkg.com/cloud189-sdk/-/cloud189-sdk-1.0.6-alpha.6.tgz#187111c2a4f99081e8a62f2faca7f887ccb13a59"
+  integrity sha512-tmUIpO6R2kTRN0uCkPLRqlF5Xtc2/DW7SePQZ+2ZQMbfegpjO5Gml1VbgOsej9zKgD//k6yKxwmYakfxOV3zFA==
   dependencies:
     chalk "^4.1.2"
     got "11.8.2"

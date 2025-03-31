@@ -29,9 +29,9 @@
 
 ### 设置账号密码
 
-新版本的 git Action 需要创建 environment 来配合使用，创建一个名为 user 的环境,添加变量TY_ACCOUNTS userName 和 password 为你的天翼账号和密码,可以添加多个账号如[{"userName":"账号 1","password":"账号 1 的密码"},{"userName":"账号 2","password":"账号 2 的密码"}]
+新版本的 git Action 需要创建 environment 来配合使用，创建一个名为 user 的环境
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/env.png)
-创建好后编辑 user 环境，添加变量 TY_ACCOUNTS
+创建好后编辑 user 环境，添加变量 TY_ACCOUNTS userName 和 password 为你的天翼账号和密码,可以添加多个账号如[{"userName":"账号 1","password":"账号 1 的密码"},{"userName":"账号 2","password":"账号 2 的密码"}]
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/accounts.jpg)
 
 如果你遇到你账号密码中有特殊字符如#$等无法解析的[SyntaxError](https://github.com/wes-lin/Cloud189Checkin/issues/76),请在你的配置中将TY_ACCOUNTS用单引号包起来
@@ -39,7 +39,7 @@
 
 ### 设置签到并发值
 
-目前发现电信的签到, 在同时发送请求时, 能同时获取到奖励,这bug在个人和家庭的签到任务同样有生效. 但是这是具有一定风险性, 并且获取到奖励是不固定的,请谨慎使用.如果因为使用该脚本出现账号异常,本人概不负责. 设置环境变量 EXEC_THRESHOLD 默认是不开启, 默认签到执行一次,如设置建议并发数为5.
+目前发现电信的签到, 在同时发送请求时, 能同时获取到奖励,这bug在个人和~~家庭~~的签到任务同样有生效. 但是这是具有一定风险性, 并且获取到奖励是不固定的,请谨慎使用.如果因为使用该脚本出现账号异常,本人概不负责. 设置环境变量 EXEC_THRESHOLD 默认是不开启, 默认签到执行一次,如设置建议并发数为5.
 - `EXEC_THRESHOLD` 同时签到的最大进程数
 
 ### 设置家庭签到
