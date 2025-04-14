@@ -16,7 +16,7 @@ const doUserTask = async (cloudClient, logger) => {
     cloudClient.userSign()
   );
   const result = (await Promise.allSettled(tasks)).filter(
-    ({ status, value }) => status === "fulfilled" && !value.isSign
+    ({ status, value }) => status === "fulfilled" && !value.isSign && value.netdiskBonus
   );
   logger.info(
     `个人签到任务: 成功数/总请求数 ${result.length}/${tasks.length} 获得 ${
@@ -50,7 +50,7 @@ const doFamilyTask = async (cloudClient, logger) => {
     logger.info(`执行家庭签到ID:${familyId}`);
     const tasks = [ cloudClient.familyUserSign(familyId) ]
     const result = (await Promise.allSettled(tasks)).filter(
-      ({ status, value }) => status === "fulfilled" && !value.signStatus
+      ({ status, value }) => status === "fulfilled" && !value.signStatus && value.bonusSpace
     );
     return logger.info(
       `家庭签到任务: 获得 ${
