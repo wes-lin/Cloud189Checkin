@@ -1,14 +1,20 @@
 require("dotenv").config();
-const fs = require("fs");
-const { CloudClient, FileTokenStore } = require("cloud189-sdk");
+const {
+  CloudClient,
+  FileTokenStore,
+  logger: sdkLogger,
+} = require("cloud189-sdk");
 const recording = require("log4js/lib/appenders/recording");
 const accounts = require("../accounts");
-const families = require("../families");
 const { mask, delay } = require("./utils");
 const push = require("./push");
 const { log4js, cleanLogs, catLogs } = require("./logger");
 const execThreshold = process.env.EXEC_THRESHOLD || 1;
 const tokenDir = ".token";
+
+sdkLogger.configure({
+  isDebugEnabled: process.env.CLOUD189_VERBOSE === "1",
+});
 
 // 个人任务签到
 const doUserTask = async (cloudClient, logger) => {
@@ -16,48 +22,14 @@ const doUserTask = async (cloudClient, logger) => {
     cloudClient.userSign()
   );
   const result = (await Promise.allSettled(tasks)).filter(
-    ({ status, value }) => status === "fulfilled" && !value.isSign && value.netdiskBonus
+    ({ status, value }) =>
+      status === "fulfilled" && !value.isSign && value.netdiskBonus
   );
   logger.info(
     `个人签到任务: 成功数/总请求数 ${result.length}/${tasks.length} 获得 ${
       result.map(({ value }) => value.netdiskBonus)?.join(",") || "0"
     }M 空间`
   );
-};
-
-// 家庭任务签到
-const doFamilyTask = async (cloudClient, logger) => {
-  const { familyInfoResp } = await cloudClient.getFamilyList();
-  if (familyInfoResp) {
-    let familyId = null;
-    //指定家庭签到
-    if (families.length > 0) {
-      const tagetFamily = familyInfoResp.find((familyInfo) =>
-        families.includes(familyInfo.remarkName)
-      );
-      if (tagetFamily) {
-        familyId = tagetFamily.familyId;
-      } else {
-        logger.error(
-          `没有加入到指定家庭分组${families
-            .map((family) => mask(family, 3, 7))
-            .toString()}`
-        );
-      }
-    } else {
-      familyId = familyInfoResp[0].familyId;
-    }
-    logger.info(`执行家庭签到ID:${familyId}`);
-    const tasks = [ cloudClient.familyUserSign(familyId) ]
-    const result = (await Promise.allSettled(tasks)).filter(
-      ({ status, value }) => status === "fulfilled" && !value.signStatus && value.bonusSpace
-    );
-    return logger.info(
-      `家庭签到任务: 获得 ${
-        result.map(({ value }) => value.bonusSpace)?.join(",") || "0"
-      }M 空间`
-    );
-  }
 };
 
 const run = async (userName, password, userSizeInfoMap, logger) => {
@@ -76,10 +48,7 @@ const run = async (userName, password, userSizeInfoMap, logger) => {
         userSizeInfo: beforeUserSizeInfo,
         logger,
       });
-      await Promise.all([
-        doUserTask(cloudClient, logger),
-        doFamilyTask(cloudClient, logger),
-      ]);
+      await Promise.all([doUserTask(cloudClient, logger)]);
     } catch (e) {
       if (e.response) {
         logger.log(`请求失败: ${e.response.statusCode}, ${e.response.body}`);
@@ -100,9 +69,6 @@ const run = async (userName, password, userSizeInfoMap, logger) => {
 
 // 开始执行程序
 async function main() {
-  if (!fs.existsSync(tokenDir)) {
-    fs.mkdirSync(tokenDir);
-  }
   //  用于统计实际容量变化
   const userSizeInfoMap = new Map();
   for (let index = 0; index < accounts.length; index++) {
