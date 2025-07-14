@@ -16,3 +16,7 @@ tests/**/coverage/
 *.sln
 
 cheese.log
+
+.token
+
+.logs
