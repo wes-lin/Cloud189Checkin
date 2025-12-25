@@ -41,7 +41,7 @@
 例如'[{"userName":"1234567890","password":"123334#$#$"}]'
 
 方式二：如果你的账号有多个并且经常变动，推荐这个方式
-同样在 user 环境中添加变量，用户名环境变量TY_USERNAME_{index},账号密码环境变量TY_PASSWORD_{index},如添加第一个账号则是TY_USERNAME_1，第一个账号密码是TY_PASSWORD_1,第二个账号则是TY_USERNAME_2，第一个账号密码是TY_PASSWORD_2,以此类推。
+同样在 user 环境中添加变量，用户名环境变量TY_USERNAME_{index},账号密码环境变量TY_PASSWORD_{index},如添加第一个账号则是TY_USERNAME_1，第一个账号密码是TY_PASSWORD_1,第二个账号则是TY_USERNAME_2，第二个账号密码是TY_PASSWORD_2,以此类推。
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/account.png)
 
 ## 设置推送
