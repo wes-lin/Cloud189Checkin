@@ -33,6 +33,7 @@
 
 新版本的 git Action 需要创建 environment 来配合使用，创建一个名为 user 的环境
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/env.png)
+
 方式一：编辑 user 环境，添加变量 TY_ACCOUNTS userName 和 password 为你的天翼账号和密码,可以添加多个账号如[{"userName":"账号 1","password":"账号 1 的密码"},{"userName":"账号 2","password":"账号 2 的密码"}]
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/accounts.jpg)
 
