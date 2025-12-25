@@ -9,7 +9,6 @@ const accounts = require("../accounts");
 const { mask, delay } = require("./utils");
 const push = require("./push");
 const { log4js, cleanLogs, catLogs } = require("./logger");
-const execThreshold = process.env.EXEC_THRESHOLD || 1;
 const tokenDir = ".token";
 
 sdkLogger.configure({
@@ -18,18 +17,9 @@ sdkLogger.configure({
 
 // 个人任务签到
 const doUserTask = async (cloudClient, logger) => {
-  const tasks = Array.from({ length: execThreshold }, () =>
-    cloudClient.userSign()
-  );
-  const result = (await Promise.allSettled(tasks)).filter(
-    ({ status, value }) =>
-      status === "fulfilled" && !value.isSign && value.netdiskBonus
-  );
-  logger.info(
-    `个人签到任务: 成功数/总请求数 ${result.length}/${tasks.length} 获得 ${
-      result.map(({ value }) => value.netdiskBonus)?.join(",") || "0"
-    }M 空间`
-  );
+  const result = await cloudClient.userSign()
+  const netdiskBonus = result.isSign? 0: result.netdiskBonus
+  logger.info(`个人签到任务: 获得 ${netdiskBonus}M 空间`);
 };
 
 const run = async (userName, password, userSizeInfoMap, logger) => {
