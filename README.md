@@ -39,12 +39,7 @@
 
 方式二：如果你的账号有多个并且经常变动，推荐这个方式
 同样在 user 环境中添加变量，账号用户名环境变量TY_USERNAME_{index},账号密码环境变量TY_PASSWORD_{index},如添加第一个账号则是TY_USERNAME_1，第一个账号密码是TY_PASSWORD_1,第二个账号则是TY_USERNAME_2，第一个账号密码是TY_PASSWORD_2,以此类推。
-
-### 设置签到并发值
-
-目前发现电信的签到, 在同时发送请求时, 能同时获取到奖励,这 bug 在个人和~~家庭~~的签到任务同样有生效. 但是这是具有一定风险性, 并且获取到奖励是不固定的,请谨慎使用.如果因为使用该脚本出现账号异常,本人概不负责. 设置环境变量 EXEC_THRESHOLD 默认是不开启, 默认签到执行一次,如设置建议并发数为 5.
-
-- `EXEC_THRESHOLD` 同时签到的最大进程数
+![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/account.png)
 
 ## 设置推送
 
