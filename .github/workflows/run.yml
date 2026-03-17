@@ -35,8 +35,8 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: .token
-          key: cloud189-token
-          restore-keys: cloud189-token
+          key: cloud189-token-${{ hashFiles('.token/*.json') }}
+          restore-keys: cloud189-token-
 
       - name: 🔧 Init secrets
         uses: shine1594/secrets-to-env-action@master
@@ -56,12 +56,18 @@ jobs:
           max_attempts: 3
           command: npm start
 
-      - name: 📹 Save cached Cookie
+      - name: 🔑 Compute token hash
         if: always()
+        run: |
+          NEW_HASH=$(find .token -name '*.json' -exec sha256sum {} \; 2>/dev/null | sha256sum | cut -d' ' -f1)
+          echo "TOKEN_HASH=${NEW_HASH}" >> $GITHUB_ENV
+
+      - name: 📹 Save cached Cookie
+        if: always() && env.TOKEN_HASH != ''
         uses: actions/cache/save@v4
         with:
           path: .token
-          key: cloud189-token
+          key: cloud189-token-${{ env.TOKEN_HASH }}
 
       - name: 🚗 Keep Running
         if: github.event_name == 'schedule'
