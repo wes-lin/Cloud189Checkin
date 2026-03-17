@@ -35,8 +35,8 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: .token
-          key: ${{ runner.os }}-cache-token
-          restore-keys: ${{ runner.os }}-cache-token-
+          key: cloud189-token
+          restore-keys: cloud189-token
 
       - name: 🔧 Init secrets
         uses: shine1594/secrets-to-env-action@master
@@ -55,12 +55,13 @@ jobs:
           timeout_minutes: 30
           max_attempts: 3
           command: npm start
-      
+
       - name: 📹 Save cached Cookie
+        if: always()
         uses: actions/cache/save@v4
         with:
           path: .token
-          key: ${{ runner.os }}-cache-token-${{ hashFiles('.token/*.json') }}
+          key: cloud189-token
 
       - name: 🚗 Keep Running
         if: github.event_name == 'schedule'
