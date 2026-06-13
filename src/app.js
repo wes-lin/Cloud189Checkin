@@ -22,6 +22,13 @@ const doUserTask = async (cloudClient, logger) => {
   logger.info(`个人签到任务: 获得 ${netdiskBonus}M 空间`);
 };
 
+const sanitizeError = (e) => {
+  if (e.response) {
+    return `请求失败: ${e.response.statusCode}`;
+  }
+  return e.message || "未知错误";
+};
+
 const run = async (userName, password, userSizeInfoMap, logger) => {
   if (userName && password) {
     const before = Date.now();
@@ -40,11 +47,7 @@ const run = async (userName, password, userSizeInfoMap, logger) => {
       });
       await Promise.all([doUserTask(cloudClient, logger)]);
     } catch (e) {
-      if (e.response) {
-        logger.log(`请求失败: ${e.response.statusCode}, ${e.response.body}`);
-      } else {
-        logger.error(e);
-      }
+      logger.error(sanitizeError(e));
       if (e.code === "ECONNRESET" || e.code === "ETIMEDOUT") {
         logger.error("请求超时");
         throw e;

@@ -27,12 +27,7 @@ const pushServerChan = (title, desp) => {
       logger.info("ServerChan推送成功");
     })
     .catch((err) => {
-      if (err.response?.text) {
-        const { info } = JSON.parse(err.response.text);
-        logger.error(`ServerChan推送失败:${info}`);
-      } else {
-        logger.error(`ServerChan推送失败:${JSON.stringify(err)}`);
-      }
+      logger.error("ServerChan推送失败");
     });
 };
 
@@ -52,11 +47,11 @@ const pushTelegramBot = (title, desp) => {
       if (res.body?.ok) {
         logger.info("TelegramBot推送成功");
       } else {
-        logger.error(`TelegramBot推送失败:${JSON.stringify(res.body)}`);
+        logger.error("TelegramBot推送失败");
       }
     })
     .catch((err) => {
-      logger.error(`TelegramBot推送失败:${JSON.stringify(err)}`);
+      logger.error("TelegramBot推送失败");
     });
 };
 
@@ -78,13 +73,13 @@ const pushWecomBot = (title, desp) => {
     .send(data)
     .then((res) => {
       if (res.body?.errcode) {
-        logger.error(`wecomBot推送失败:${JSON.stringify(res.body)}`);
+        logger.error("wecomBot推送失败");
       } else {
         logger.info("wecomBot推送成功");
       }
     })
     .catch((err) => {
-      logger.error(`wecomBot推送失败:${JSON.stringify(err)}`);
+      logger.error("wecomBot推送失败");
     });
 };
 
@@ -106,11 +101,11 @@ const pushWxPusher = (title, desp) => {
       if (res.body?.code === 1000) {
         logger.info("wxPusher推送成功");
       } else {
-        logger.error(`wxPusher推送失败:${JSON.stringify(res.body)}`);
+        logger.error("wxPusher推送失败");
       }
     })
     .catch((err) => {
-      logger.error(`wxPusher推送失败:${JSON.stringify(err)}`);
+      logger.error("wxPusher推送失败");
     });
 };
 
@@ -133,11 +128,11 @@ const pushPlusPusher = (title, desp) => {
       if (res.body?.code === 200) {
         logger.info("pushPlus 推送成功");
       } else {
-        logger.error(`pushPlus 推送失败:${JSON.stringify(res.body)}`);
+        logger.error("pushPlus 推送失败");
       }
     })
     .catch((err) => {
-      logger.error(`pushPlus 推送失败:${JSON.stringify(err)}`);
+      logger.error("pushPlus 推送失败");
     });
 };
 
@@ -154,7 +149,7 @@ const pushBark = (title, desp) => {
     })
     .catch((error) => {
       // 请求失败
-      logger.error(`Bark推送失败: ${JSON.stringify(error)}`);
+      logger.error("Bark推送失败");
     });
 };
 
@@ -176,7 +171,7 @@ const pushShowDoc = (title, desp) => {
     })
     .catch((error) => {
       // 请求失败
-      logger.error(`ShowDoc推送失败: ${JSON.stringify(error)}`);
+      logger.error("ShowDoc推送失败");
     });
 };
 
