@@ -5,6 +5,7 @@ const telegramBot = require("./telegramBot");
 const wecomBot = require("./wecomBot");
 const wxpush = require("./wxPusher");
 const pushPlus = require("./pushPlus");
+const wpush = require("./wpush");
 const bark = require("./bark");
 const showDoc = require("./showDoc");
 
@@ -141,6 +142,40 @@ const pushPlusPusher = (title, desp) => {
     });
 };
 
+const pushWPush = (title, desp) => {
+  // 如果没有配置 WPUSH 的 apikey，则不执行推送
+  if (!wpush.apikey) {
+    return;
+  }
+  // 请求体（不在日志中输出 apikey）
+  const data = {
+    apikey: wpush.apikey,
+    title: title,
+    content: desp,
+  };
+  if (wpush.channel) {
+    data.channel = wpush.channel;
+  }
+  if (wpush.topicCode) {
+    data.topic_code = wpush.topicCode;
+  }
+  // 发送请求
+  superagent
+    .post("https://api.wpush.cn/api/v1/send")
+    .send(data)
+    .then((res) => {
+      if (res.body?.code === 0) {
+        logger.info("WPUSH 推送成功");
+      } else {
+        logger.error(`WPUSH 推送失败:${JSON.stringify(res.body)}`);
+      }
+    })
+    .catch((err) => {
+      const msg = err.response?.text || err.message || "unknown error";
+      logger.error(`WPUSH 推送失败:${msg}`);
+    });
+};
+
 const pushBark = (title, desp) => {
   if (!bark.apiServer || !bark.sendKey) {
     return;
@@ -186,6 +221,7 @@ const push = (title, desp) => {
   pushWecomBot(title, desp);
   pushWxPusher(title, desp);
   pushPlusPusher(title, desp);
+  pushWPush(title, desp);
   pushBark(title, desp);
   pushShowDoc(title, desp);
 };
