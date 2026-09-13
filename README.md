@@ -78,6 +78,16 @@
 - 拿到 token 后，把 PUSH_PLUS_TOKEN 配成你拿到的 token.
 - 免费用户每天有 200 条推送额度
 
+
+### WPUSH 推送
+
+- `WPUSH_APIKEY ` _WPUSH 推送 API Key_
+- 注册和获取 API Key：https://wpush.cn/settings
+- 拿到 API Key 后，把 WPUSH_APIKEY 配成你拿到的 key.
+- `可选` `WPUSH_CHANNEL` 推送渠道，默认由服务端处理（常用 wechat）；支持 wechat / app / sms / mail / webhook / dingtalk / feishu / wechat_work / clawbot / qqbot 等
+- `可选` `WPUSH_TOPIC_CODE` Topic 广播编码；不填仅发送给自己
+- 官方文档：https://wpush.cn/docs
+
 ### ShowDoc 推送
 
 - `SHOWDOC_KEY ` _ShowDoc 推送 key_
